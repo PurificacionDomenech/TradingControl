@@ -1,0 +1,13 @@
+{
+    "name": "Trading Control",
+    "short_name": "Trading Control",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "images/icon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
