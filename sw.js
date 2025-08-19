@@ -1,3 +1,4 @@
+
 const CACHE_NAME = 'trading-control-v1';
 const urlsToCache = [
   './',
