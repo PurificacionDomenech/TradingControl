@@ -9,36 +9,26 @@
     <meta name="theme-color" content="#1a1a1a">
 
     <!-- Enlace al Manifiesto de Aplicación Web (incrustado y corregido) -->
-    <link rel="manifest" href='data:application/manifest+json,{
-      "name": "Trading Journal Pro",
-      "short_name": "TradingJournal",
-      "description": "Una aplicación de diario de trading para mantener la consistencia.",
-      "start_url": ".",
-      "display": "standalone",
-      "background_color": "#1a1a1a",
-      "theme_color": "#1a1a1a",
-      "icons": [
-        {
-          "src": "logo.jpg?v=2",
-          "sizes": "192x192",
-          "type": "image/jpeg"
-        },
-        {
-          "src": "logo.jpg?v=2",
-          "sizes": "512x512",
-          "type": "image/jpeg"
-        }
-      ]
-    }'>
+    <link rel="manifest" href="manifest.json">
 
     <!-- Icono para dispositivos Apple (muy importante para accesos directos) -->
-    <link rel="apple-touch-icon" href="logo.jpg?v=2">
+    <link rel="apple-touch-icon" href="logo.jpg">
 
     <!-- Icono básico para pestañas de navegador (Favicon) -->
-    <link rel="icon" type="image/jpeg" href="logo.jpg?v=2">
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
 
     <meta name="theme-color" content="#1a1a1a">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+ 
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -121,15 +111,18 @@
             background-color: #00f2ea;
             color: #000000;
         }
+   
+        .tab-content {
+              display: none;
+         }
+        .tab-content.active { 
+                display: block;
+          }
 
-    .tab-content, .retos-tab-pane { /* <-- Cambio aquí */
-           display: none;
-     }
-
-   .tab-content.active, .retos-tab-pane.active { /* <-- Y cambio aquí */
-         display: block;
-    }
-
+       .retos-seccion-bloque {
+          margin-bottom: 2rem; /* Añade un espacio entre las secciones Semanal, Mensual e Historial */
+        
+        }
 
         .form-group {
             margin-bottom: 15px;
@@ -620,28 +613,7 @@
 .percentage-above-50 {
     color: #00f2ea;
 }
-.nav-tabs {
-    display: flex;
-    margin-bottom: 20px;
-}
-
-.nav-tab {
-    padding: 10px 20px;
-    cursor: pointer;
-    background-color: #3a3a3a;
-    border: none;
-    flex: 1;
-    text-align: center;
-    color: #b3b3b3;
-    transition: background-color 0.3s, color 0.3s;
-    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-    font-weight: 500;
-}
-
-.nav-tab:hover, .nav-tab.active {
-    background-color: #00f2ea;
-    color: #000000;
-}
+/* --- ESTILOS GENERALES DE LA SECCIÓN RETOS --- */
 
 .week-nav {
     display: flex;
@@ -655,14 +627,14 @@
     background-color: #3a3a3a;
     border: none;
     color: #b3b3b3;
-    padding: 0.5rem 0.8rem; /* Reducido el padding horizontal */
+    padding: 0.5rem 0.8rem;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: clamp(0.7rem, 2vw, 0.8rem); /* Reducido el tamaño de fuente */
-    min-width: 60px; /* Reducido de 80px a 60px */
-    max-width: 80px; /* Agregado para evitar que crezcan demasiado */
-    white-space: nowrap; /* Evita que el texto se divida en líneas */
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
+    min-width: 60px;
+    max-width: 80px;
+    white-space: nowrap;
 }
 
 .week-nav button:hover {
@@ -682,42 +654,14 @@
     font-size: clamp(0.9rem, 3vw, 1.1rem);
     color: #00f2ea;
     text-align: center;
-    flex: 2; /* Cambiado de 1 a 2 para dar más espacio a la fecha */
-    margin: 0 1rem; /* Agregado margen lateral para separación */
-}
-
-.content {
-    padding: clamp(1.5rem, 5vw, 2rem);
-}
-
-.brand-section {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    padding: 1.2rem;
-    background-color: #2d2d2d;
-    border-radius: 10px;
-    color: #ffffff;
-    border: 1px solid #4b5563;
-}
-
-.brand-section h3 {
-    font-size: clamp(1.2rem, 4vw, 1.5rem);
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-    color: #00f2ea;
-}
-
-.brand-section p {
-    font-size: clamp(0.8rem, 3vw, 0.9rem);
-    opacity: 0.9;
-    color: #b3b3b3;
+    flex: 2;
+    margin: 0 1rem;
 }
 
 .reto-section {
     background-color: #2d2d2d;
     border-radius: 10px;
     padding: 1.5rem;
-    margin-bottom: 1.8rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     border: 1px solid #4b5563;
     display: flex;
@@ -764,114 +708,93 @@
     color: #6b7280;
 }
 
+/* --- NUEVO DISEÑO LINEAL PARA LOS DÍAS --- */
+
 .dias-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.2rem;
-    margin-bottom: 1.8rem;
-}
-
-.dia-card {
-    background-color: #2d2d2d;
-    border-radius: 10px;
-    padding: 1.2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-    border: 1px solid #4b5563;
-}
-
-.dia-card:hover {
-    transform: translateY(-0.2rem);
-    box-shadow: 0 4px 15px rgba(0, 242, 234, 0.2);
-}
-
-.dia-nombre {
-    font-weight: 600;
-    color: #00f2ea;
-    margin-bottom: 0.8rem;
-    text-align: center;
-    font-size: clamp(0.9rem, 3vw, 1rem);
-}
-
-.dia-controles {
     display: flex;
-    justify-content: center;
+    flex-direction: column; /* Apila los días verticalmente */
     gap: 0.8rem;
-    margin-bottom: 0.8rem;
+    margin: 1.8rem 0; /* Margen arriba y abajo */
+    background-color: #2d2d2d;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #4b5563;
 }
 
-.btn-cumplido, .btn-no-cumplido {
-    width: 2.8rem;
-    height: 2.8rem;
-    border: 1px solid #4b5563;
-    border-radius: 4px;
+.dia-linea {
+    display: grid;
+    grid-template-columns: 100px 40px 40px 1fr; /* Día | ✓ | ✗ | Operativa */
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.dia-linea:hover {
+    background-color: #3a3a3a;
+}
+
+.dia-nombre-lineal {
+    font-weight: 600;
+    color: #b3b3b3;
+    font-size: 0.9rem;
+}
+
+/* --- NUEVOS ESTILOS PARA BOTONES SEPARADOS --- */
+.dia-reto-controles {
+    display: flex;
+    gap: 0.5rem; /* Espacio entre los dos botones */
+    justify-content: center;
+}
+
+.btn-cumplido-check, .btn-no-cumplido-check {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: clamp(1rem, 3.5vw, 1.2rem);
-    font-weight: bold;
-    transition: all 0.3s ease;
+    border: 2px solid #4b5563;
+    background-color: #3a3a3a;
+    color: #b3b3b3;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s;
 }
 
-.btn-cumplido {
-    background-color: #3a3a3a;
-    color: #b3b3b3;
-}
-
-.btn-cumplido.active {
+.btn-cumplido-check.active {
     background-color: #10b0b9;
-    color: #ffffff;
-    box-shadow: 0 2px 10px rgba(16, 176, 185, 0.3);
     border-color: #10b0b9;
+    color: white;
 }
 
-.btn-no-cumplido {
-    background-color: #3a3a3a;
-    color: #b3b3b3;
-}
-
-.btn-no-cumplido.active {
+.btn-no-cumplido-check.active {
     background-color: #ef44bc;
-    color: #ffffff;
-    box-shadow: 0 2px 10px rgba(239, 68, 188, 0.3);
     border-color: #ef44bc;
+    color: white;
 }
 
-.resultado-selector {
-    margin-top: 0.8rem;
-    opacity: 0;
-    transform: translateY(-0.6rem);
-    transition: all 0.3s ease;
-}
 
-.resultado-selector.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.resultado-selector select {
+.resultado-selector-lineal select {
     width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #4b5563;
-    border-radius: 4px;
-    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    max-width: 150px;
+    padding: 0.5rem;
+    font-size: 0.85rem;
     background-color: #1a1a1a;
     color: #ffffff;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
+    border: 1px solid #4b5563;
+    border-radius: 4px;
 }
 
-.resultado-selector select:focus {
-    outline: none;
-    border-color: #00f2ea;
-}
+/* --- ESTILOS PARA ESTADÍSTICAS, HISTORIAL Y OTROS --- */
 
 .estadisticas {
     background-color: #2d2d2d;
     border-radius: 10px;
     padding: 1.5rem;
-    margin-bottom: 1.8rem;
+    margin-top: 1.8rem; /* Añadido para separar de los días */
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     border: 1px solid #4b5563;
 }
@@ -918,11 +841,12 @@
 }
 
 .chart-container {
-    height: clamp(200px, 50vw, 280px);
+    position: relative;
+    height: 300px;
     background-color: #1f1f1f;
     border-radius: 5px;
     padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-top: 1.5rem; /* Separación del grid de stats */
     border: 1px solid #4b5563;
 }
 
@@ -930,6 +854,7 @@
     background-color: #2d2d2d;
     border-radius: 10px;
     padding: 1.5rem;
+    margin-top: 1.8rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     border: 1px solid #4b5563;
 }
@@ -1012,6 +937,12 @@
     transform: translateY(-1px);
 }
 
+.guardar-section {
+    text-align: center;
+    margin: 1.5rem 0;
+    padding: 1.2rem;
+}
+
 .btn-finalizar {
     background-color: #00f2ea;
     color: #000000;
@@ -1030,16 +961,6 @@
 .btn-finalizar:hover {
     background-color: #00d4d1;
     transform: translateY(-1px);
-}
-
-.btn-finalizar:active {
-    transform: translateY(0);
-}
-
-.guardar-section {
-    text-align: center;
-    margin: 1.5rem 0;
-    padding: 1.2rem;
 }
 
 .btn-editar-reto, .btn-guardar-reto {
@@ -1075,7 +996,7 @@
     background-color: #2d2d2d;
     border-radius: 10px;
     padding: 1.5rem;
-    margin-bottom: 1.8rem;
+    margin-top: 1.8rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     border: 1px solid #4b5563;
 }
@@ -1113,52 +1034,13 @@
     border-radius: 5px;
 }
 
-@media (max-width: 800px) {
-    .objetivos-container {
-        grid-template-columns: 1fr;
-    }
-}
+/* --- Media Queries para Responsividad --- */
 
 @media (max-width: 768px) {
-    body {
-        padding: 1rem;
-    }
-
-    .container {
-        width: 100%;
-        margin: 0;
-        border-radius: 10px;
-    }
-
-    .content {
-        padding: 1.2rem;
-    }
-
-    .dias-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .nav-tabs {
-        flex-direction: column;
-    }
-
-    .nav-tab {
-        border-bottom: 1px solid #4b5563;
-    }
-
-    .week-nav button {
-        min-width: 50px;
-        padding: 0.4rem 0.6rem;
-        font-size: clamp(0.65rem, 2vw, 0.75rem);
-    }
-    
-    .current-week {
-        margin: 0 0.5rem;
-        font-size: clamp(0.8rem, 3vw, 1rem);
-    }
+   
 
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }
 
     .month-selector {
@@ -1176,68 +1058,52 @@
 
     .btn-editar-reto, .btn-guardar-reto {
         width: 100%;
-        padding: 0.6rem;
-    }
-
-    .brand-section h3 {
-        font-size: clamp(1rem, 4vw, 1.2rem);
-    }
-
-    .chart-container {
-        height: 200px;
     }
 }
 
 @media (max-width: 500px) {
-    .container {
-        padding: 15px;
+    .dia-linea {
+        grid-template-columns: 80px 35px 1fr; /* Ajuste para móviles */
+        gap: 0.8rem;
     }
-    h1 {
-        font-size: 20px;
-    }
-    #listaTareas li {
-        font-size: 16px;
-    }
-    #listaTareas input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-    }
-    .tabs {
-        flex-direction: column;
-    }
-    .tab {
-        border-bottom: 1px solid #4b5563;
-    }
-    .stat-box {
-        min-width: 100%;
-    }
-    .nav-tab, .month-selector button {
-        padding: 0.5rem 0.8rem;
-        font-size: clamp(0.7rem, 2vw, 0.8rem);
-    }
-    .dia-card {
-        padding: 0.8rem;
-    }
-    .btn-cumplido, .btn-no-cumplido {
-        width: 2.2rem;
-        height: 2.2rem;
-        font-size: clamp(0.8rem, 2.5vw, 1rem);
-    }
+
     .btn-finalizar {
         padding: 0.6rem 1rem;
         font-size: clamp(0.75rem, 2.5vw, 0.9rem);
         min-width: 120px;
     }
-    .week-nav button {
-        min-width: 45px;
-        padding: 0.4rem 0.5rem;
-        font-size: 0.7rem;
-    }
-    
-    .current-week {
-        margin: 0 0.3rem;
-    }
 }
+/* --- AÑADE ESTAS REGLAS PARA LOS TÍTULOS --- */
+.dias-grid-header {
+    display: grid;
+    grid-template-columns: 100px 90px 90px 1fr; /* Día | ✓ | ✗ | Operativa */
+    align-items: center;
+    gap: 1rem;
+    padding: 0 0.5rem 0.5rem; /* Padding solo abajo */
+    border-bottom: 1px solid #4b5563; /* Línea separadora */
+    margin-bottom: 0.5rem;
+}
+
+.dias-grid-header span {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #b3b3b3;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Alineamos el primer título (Día) a la izquierda */
+.dias-grid-header span:first-child {
+    text-align: left;
+}
+
+/* --- REGLA AÑADIDA --- */
+/* Alineamos el último título (Operativa) a la izquierda para que coincida con el selector */
+.dias-grid-header span:last-child {
+    text-align: left;
+}
+
+
 
     </style>
 </head>
@@ -1305,13 +1171,20 @@
                     <h3 style="margin-top: 20px;">Metas</h3>
                     <div id="journal-entries"></div>
             </div>
+                  <div class="dashboard-card">
+               <h3>Crecimiento de Capital y Seguimiento de Drawdown</h3>
+               <div class="chart-container">  
+              <canvas id="capitalGrowthChart"></canvas>
+                </div>
+            </div>
+        
             
             <div class="dashboard-card">
                 <h3>Operaciones Recientes</h3>
                 <div id="recent-operations"><p>No hay operaciones recientes para mostrar.</p></div>
             </div>
+      
         </div>
-
         <!-- Checklist -->
      <!-- Checklist -->
 <div id="checklist" class="tab-content">
@@ -1365,7 +1238,7 @@
                 <option value="Monarca">Monarca</option>
                 <option value="Monarca Plus">Monarca Plus</option>
                 <option value="Imperial">Imperial</option>
-                <option value="Golden">Golde</option>
+                <option value="Golden">Golden</option>
                 <option value="Golden Band">Golden Band</option>
                 <option value="custom">Otro (especificar)</option>
             </select>
@@ -1567,138 +1440,99 @@
         </div>
 </div>
   
-        <!-- Retos Semanales -->     
- <div id="Retos" class="tab-content">
-        <div class="header">
-            <div class="nav-tabs">
-                <button class="nav-tab active" onclick="app.switchTab('semanal')">Semanal</button>
-                <button class="nav-tab" onclick="app.switchTab('mensual')">Mensual</button>
-                <button class="nav-tab" onclick="app.switchTab('historial')">Historial</button>
-            </div>
+<!-- Retos Semanales -->
+<div id="Retos" class="tab-content">
 
-            <div class="week-nav" id="weekNav">
-                <button id="prevWeek">← Anterior</button>
-                <div class="current-week" id="currentWeekDisplay"></div>
-                <button id="nextWeek">Siguiente →</button>
-            </div>
-        </div>
+    <div class="content">
 
-        <div class="content">
-            <!-- Tab Semanal -->
-            <div id="tab-semanal" class="retos-tab-pane active">
-               <div class="guardar-section">
-         <button id="btnGuardarHistorial" class="btn-finalizar" style="display: none;">
-           Finalizar Semana
-         </button>
-          </div>
-                
-          <!-- Sección del Reto -->
-        <div class="reto-section">
-            <h2>🎯 Reto de la Semana</h2>
-       <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" id="retoInput" class="reto-input" placeholder="Define tu reto para esta semana..." disabled>
-            <button id="btnEditarReto" class="btn-editar-reto" style="display: none;">✏️</button>
-           <button id="btnGuardarReto" class="btn-guardar-reto" style="display: none;">💾</button>
-       </div>
-       <div style="margin-top: 10px; font-size: 12px; color: #6c757d;">
-           <em>El reto se guarda automáticamente y se puede editar usando el botón de edición</em>
-          </div>
-    </div>
-         <!-- Grid de Días -->
-       <div class="dias-grid" id="diasGrid">
-        <!-- Los días se generarán dinámicamente -->
-           </div>
-
-                <!-- Estadísticas Semanales -->
-                <div class="estadisticas">
-                    <h2>📊 Estadísticas de la Semana</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number" id="diasCumplidos">0</div>
-                            <div class="stat-label">Días Cumplidos</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="resultadosPositivos">0</div>
-                            <div class="stat-label">Resultados +</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="resultadosNegativos">0</div>
-                            <div class="stat-label">Resultados -</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="porcentajeCumplimiento">0%</div>
-                            <div class="stat-label">% Cumplimiento</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="efectividad">0%</div>
-                            <div class="stat-label">% Efectividad</div>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="chartCanvas" width="500" height="220"></canvas>
-                    </div>
+        <!-- SECCIÓN SEMANAL -->
+        <div class="retos-seccion-bloque">
+            <div class="header">
+                <div class="week-nav" id="weekNav">
+                    <button id="prevWeek">← Anterior</button>
+                    <div class="current-week" id="currentWeekDisplay"></div>
+                    <button id="nextWeek">Siguiente →</button>
                 </div>
             </div>
 
-            <!-- Tab Mensual -->
-            <div id="tab-mensual" class="retos-tab-pane">
-                <div class="monthly-stats">
-                    <h2>📈 Estadísticas Mensuales</h2>
-                    
-                    <div class="month-selector">
-                        <button onclick="app.changeMonth(-1)">← Mes Anterior</button>
-                        <h3 id="currentMonth"></h3>
-                        <button onclick="app.changeMonth(1)">Mes Siguiente →</button>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number" id="semanasDelMes">0</div>
-                            <div class="stat-label">Semanas Registradas</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="diasCumplidosMes">0</div>
-                            <div class="stat-label">Total Días Cumplidos</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="positivosMes">0</div>
-                            <div class="stat-label">Resultados Positivos</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="cumplimientoMes">0%</div>
-                            <div class="stat-label">% Cumplimiento Mes</div>
-                        </div>
-                    </div>
-
-                    <div style="margin: 25px 0;">
-                        <h4 style="color: #2c3e50; margin-bottom: 10px;">Progreso del Mes</h4>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-                        </div>
-                        <p style="text-align: center; margin-top: 12px; color: #6c757d; font-weight: 500;" id="progressText">0 de 0 días completados</p>
-                    </div>
-
-                    <div class="chart-container">
-                        <canvas id="monthlyChart" width="500" height="220"></canvas>
-                    </div>
+            <!-- 1. Sección del Reto (con el div correctamente cerrado) -->
+            <div class="reto-section">
+                <h2>🎯 Reto de la Semana</h2>
+                <div style="display: flex; gap: 10px; align-items: center; width: 100%;">
+                    <input type="text" id="retoInput" class="reto-input" placeholder="Define tu reto para esta semana..." disabled>
+                    <button id="btnEditarReto" class="btn-editar-reto" style="display: none;">✏️</button>
+                    <button id="btnGuardarReto" class="btn-guardar-reto" style="display: none;">💾</button>
                 </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #6c757d; width: 100%;">
+                    <em>El reto se guarda automáticamente y se puede editar.</em>
+                </div>
+            </div> <!-- CIERRE DEL DIV .reto-section -->
+
+            <!-- 2. Grid de Días -->
+            <div class="dias-grid" id="diasGrid">
+                <div class="dias-grid-header">
+                    <span>Día</span>
+                    <span>Reto</span>
+                    <span>Operativa</span>
+                </div>
+                <!-- Los días se generarán dinámicamente aquí -->
             </div>
 
-            <!-- Tab Historial -->
-            <div id="tab-historial" class="retos-tab-pane">
-                <div class="historial">
-                    <h2>📅 Historial Completo</h2>
-                    <div style="text-align: center; margin: 20px 0;">
-                      <button id="btnBorrarHistorial">Borrar Historial</button>
-                    </div>
-                    <div id="historialContainer">
-                        <!-- El historial se generará dinámicamente -->
-                    </div>
+            <!-- 3. Botón Finalizar Semana -->
+            <div class="guardar-section">
+                <button id="btnGuardarHistorial" class="btn-finalizar" style="display: none;">Finalizar Semana</button>
+            </div>
+
+            <!-- 4. Estadísticas Semanales -->
+            <div class="estadisticas">
+                <h2>📊 Estadísticas de la Semana</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="diasCumplidos">0</div><div class="stat-label">Días Cumplidos</div></div>
+                    <div class="stat-card"><div class="stat-number" id="resultadosPositivos">0</div><div class="stat-label">Resultados +</div></div>
+                    <div class="stat-card"><div class="stat-number" id="resultadosNegativos">0</div><div class="stat-label">Resultados -</div></div>
+                    <div class="stat-card"><div class="stat-number" id="porcentajeCumplimiento">0%</div><div class="stat-label">% Cumplimiento</div></div>
+                    <div class="stat-card"><div class="stat-number" id="efectividad">0%</div><div class="stat-label">% Efectividad</div></div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartCanvas"></canvas>
                 </div>
             </div>
         </div>
+
+        <!-- SECCIÓN MENSUAL -->
+        <div class="retos-seccion-bloque">
+            <div class="monthly-stats">
+                <h2>📈 Estadísticas Mensuales</h2>
+                <div class="month-selector">
+                    <button id="prevMonthBtn">← Mes Anterior</button>
+                    <h3 id="currentMonth"></h3>
+                    <button id="nextMonthBtn">Mes Siguiente →</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="semanasDelMes">0</div><div class="stat-label">Semanas Registradas</div></div>
+                    <div class="stat-card"><div class="stat-number" id="diasCumplidosMes">0</div><div class="stat-label">Total Días Cumplidos</div></div>
+                    <div class="stat-card"><div class="stat-number" id="positivosMes">0</div><div class="stat-label">Resultados Positivos</div></div>
+                    <div class="stat-card"><div class="stat-number" id="cumplimientoMes">0%</div><div class="stat-label">% Cumplimiento Mes</div></div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN HISTORIAL -->
+        <div class="retos-seccion-bloque">
+            <div class="historial">
+                <h2>📅 Historial Completo</h2>
+                <div style="text-align: center; margin: 20px 0;">
+                  <button id="btnBorrarHistorial" class="button-danger">Borrar Historial</button>
+                </div>
+                <div id="historialContainer"></div>
+            </div>
+        </div>
     </div>
- 
+</div>
+
         <!-- Modals -->
         <div id="settings-modal" class="settings-modal">
             <div class="modal-content">
@@ -2150,6 +1984,7 @@ function removeChecklistItem(indexToRemove) {
             const activeButton = document.querySelector(`.tab[onclick="openTab('${tabName}')"]`);
             if (tabElement) tabElement.classList.add('active');
             if (activeButton) activeButton.classList.add('active');
+            if (tabName === 'Retos' && typeof app === 'undefined') { window.app = new RetosSemanales();}
             if (tabName === 'checklist') showChecklist();
             else if (tabName === 'historial') { populateYearFilter(); renderOperations(); }
             else if (tabName === 'dashboard') updateDashboard();
@@ -2595,7 +2430,9 @@ function toggleGoalAchieved(id, isAchieved) {
 function updateUI() {
     // 1. Actualiza los números del Dashboard (saldo, P/L, etc.)
     updateDashboard(); 
-    
+      // 2. Dibuja el gráfico de crecimiento de capital.
+    //    Esta es la línea clave que soluciona el problema.
+    renderCapitalGrowthChart();
 
     //    Al sacar esta línea del 'if', nos aseguramos de que el Dashboard
     //    se refresque sin importar en qué pestaña estemos.
@@ -2615,7 +2452,8 @@ function updateUI() {
         document.getElementById('monthly-goal').value = goals.monthly || '';
         updateJournalStatistics();
         updateGoalProgress();
-   
+        renderCapitalGrowthChart();
+        
     }
 }
 
@@ -2965,7 +2803,10 @@ function changeOperationsDisplay() {
     } else {
         return 'percentage-above-50'; // Turquesa
     }
-}
+  }
+// --- VERSIÓN DE DEPURACIÓN de renderCapitalGrowthChart ---
+
+
         // --- Inicialización ---
         loadAccounts();
         const storedActive = localStorage.getItem(ACTIVE_ACCOUNT_KEY);
@@ -2979,21 +2820,7 @@ function changeOperationsDisplay() {
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
         openTab('dashboard');
         
-    </script>
-      <script>
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then((registration) => {
-                console.log('SW registrado correctamente');
-            })
-            .catch((error) => {
-                console.log('Error registrando SW:', error);
-            });
-    });
-}
-</script>
-<script>
+// Registro del Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -3006,95 +2833,122 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-</script>
- <script>
-       class RetosSemanales {
+function renderCapitalGrowthChart() {
+    const canvas = document.getElementById('capitalGrowthChart');
+    if (!canvas) {
+        console.error("Canvas 'capitalGrowthChart' no encontrado.");
+        return;
+    }
+
+    if (window.capitalGrowthChartInstance) {
+        window.capitalGrowthChartInstance.destroy();
+    }
+
+    // --- 1. Agrupar Operaciones por Día ---
+    const dailyBalances = {};
+    let runningBalance = settings.initialBalance;
+
+    const sortedOperations = [...operations].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    sortedOperations.forEach(op => {
+        // Acumulamos el saldo operación por operación
+        runningBalance += op.amount;
+        // Guardamos solo el último saldo del día. Si hay varias ops en un día, se sobrescribe hasta quedar el final.
+        dailyBalances[op.date] = runningBalance;
+    });
+
+    // --- 2. Preparar los Datos para el Gráfico ---
+    // El gráfico empieza con el saldo inicial en la fecha de la primera operación.
+    const labels = [];
+    const balanceData = [];
+    
+    if (sortedOperations.length > 0) {
+        const firstOpDate = new Date(sortedOperations[0].date);
+        firstOpDate.setDate(firstOpDate.getDate() - 1); // Un día antes para que se vea el "bajón" inicial
+        
+        labels.push(firstOpDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+        balanceData.push(settings.initialBalance);
+    }
+
+    // Añadimos cada saldo diario al gráfico
+    for (const date in dailyBalances) {
+        labels.push(new Date(date).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+        balanceData.push(dailyBalances[date]);
+    }
+
+    // --- 3. Línea de Drawdown (como en Bulenox) ---
+    // Creamos una línea recta que cruza todo el gráfico en el valor del suelo de drawdown.
+    const drawdownLineValue = settings.initialBalance - settings.trailingDrawdownAmount;
+    const drawdownData = Array(labels.length).fill(drawdownLineValue);
+
+    // --- 4. Creación del Gráfico Estilo Bulenox ---
+    window.capitalGrowthChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Balance',
+                    data: balanceData,
+                    borderColor: '#00f2ea', // Tu color turquesa
+                    backgroundColor: 'rgba(0, 242, 234, 0.1)',
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 2, // Puntos pequeños en cada día de operativa
+                },
+                {
+                    label: 'Suelo Drawdown',
+                    data: drawdownData,
+                    borderColor: '#ef44bc', // Tu color rosa
+                    borderWidth: 2, // Línea un poco más gruesa
+                    fill: false,
+                    pointRadius: 0, // Sin puntos en la línea de drawdown
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            scales: {
+                x: {
+                    ticks: { color: '#b3b3b3', maxRotation: 0, minRotation: 0, autoSkip: true, maxTicksLimit: 8 }, // Muestra máx. 8 fechas
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    ticks: { color: '#b3b3b3', callback: (v) => v.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            },
+            plugins: {
+                legend: { display: true }, 
+                position: 'top',
+                align: 'start',
+                 labels: {
+                 color: '#ffffff', // Color del texto
+                 boxWidth: 20,     // Ancho de la caja de color
+                 padding: 20
+                } 
+  
+            }
+        }
+    });
+}
+class RetosSemanales {
     constructor() {
         this.currentWeek = this.getCurrentWeekKey();
         this.currentMonth = new Date().getMonth();
         this.currentYear = new Date().getFullYear();
         this.data = this.loadData();
         this.dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-        this.activeTab = 'semanal';
+        this.chartInstance = null;
+        this.monthlyChartInstance = null;
         this.init();
-    }
-
-    getCurrentWeekKey() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const week = this.getWeekNumber(now);
-        return `${year}-W${week.toString().padStart(2, '0')}`;
-    }
-
-    getWeekNumber(date) {
-        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-        const dayNum = d.getUTCDay() || 7;
-        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    }
-
-    getWeekDates(weekKey) {
-        const [year, week] = weekKey.split('-W');
-        const jan1 = new Date(year, 0, 1);
-        const days = (parseInt(week) - 1) * 7;
-        const weekStart = new Date(jan1.getTime() + days * 24 * 60 * 60 * 1000);
-        const dayOfWeek = weekStart.getDay();
-        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-        weekStart.setDate(weekStart.getDate() + diff);
-        return weekStart;
-    }
-
-    formatWeekName(weekKey) {
-        const weekStart = this.getWeekDates(weekKey);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 4);
-        const formatDate = (date) => {
-            return date.toLocaleDateString('es-ES', { 
-                day: '2-digit', 
-                month: 'short',
-                year: 'numeric'
-            });
-        };
-        return `${formatDate(weekStart)} - ${formatDate(weekEnd)}`;
-    }
-
-    loadData() {
-        const saved = localStorage.getItem('retosSemanales');
-        return saved ? JSON.parse(saved) : {};
-    }
-
-    saveData() {
-        localStorage.setItem('retosSemanales', JSON.stringify(this.data));
-    }
-
-    getCurrentWeekData() {
-        if (!this.data[this.currentWeek]) {
-            this.data[this.currentWeek] = {
-                reto: '',
-                fechaInicio: this.getWeekDates(this.currentWeek).toISOString().split('T')[0],
-                retoFijo: false,
-                completada: false,
-                dias: {}
-            };
-            this.dias.forEach(dia => {
-                this.data[this.currentWeek].dias[dia.toLowerCase()] = {
-                    cumplido: null,
-                    resultado: null
-                };
-            });
-        }
-        return this.data[this.currentWeek];
     }
 
     init() {
         this.setupEventListeners();
-        this.renderWeekDisplay();
-        this.renderDias();
-        this.renderEstadisticas();
-        this.renderHistorial();
-        this.renderMonthlyStats();
-        this.loadCurrentWeekData();
+        this.renderAll();
     }
 
     setupEventListeners() {
@@ -3106,50 +2960,41 @@ if ('serviceWorker' in navigator) {
         document.getElementById('btnBorrarHistorial').addEventListener('click', () => this.borrarHistorial());
         document.getElementById('btnEditarReto').addEventListener('click', () => this.editarReto());
         document.getElementById('btnGuardarReto').addEventListener('click', () => this.guardarReto());
+        document.getElementById('prevMonthBtn').addEventListener('click', () => this.changeMonth(-1));
+        document.getElementById('nextMonthBtn').addEventListener('click', () => this.changeMonth(1));
     }
-   switchTab(tabName) {
-    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelector(`[onclick="app.switchTab('${tabName}')"]`).classList.add('active');
-    document.querySelectorAll('.retos-tab-pane').forEach(content => content.classList.remove('active')); // <-- LÍNEA CORREGIDA
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    const weekNav = document.getElementById('weekNav');
-    weekNav.style.display = tabName === 'semanal' ? 'flex' : 'none';
-    this.activeTab = tabName;
-    if (tabName === 'mensual') {
-        this.renderMonthlyStats();
-    } else if (tabName === 'historial') {
-        this.renderHistorial();
-    }
-}
 
-       changeWeek(direction) {
-        const [year, week] = this.currentWeek.split('-W');
-        let newWeek = parseInt(week) + direction;
-        let newYear = parseInt(year);
-        if (newWeek < 1) {
-            newWeek = 52;
-            newYear--;
-        } else if (newWeek > 52) {
-            newWeek = 1;
-            newYear++;
+    loadData() {
+        const saved = localStorage.getItem('retosSemanalesData');
+        return saved ? JSON.parse(saved) : {};
+    }
+
+    saveData() {
+        localStorage.setItem('retosSemanalesData', JSON.stringify(this.data));
+    }
+
+    getCurrentWeekData() {
+        if (!this.data[this.currentWeek]) {
+            this.data[this.currentWeek] = {
+                reto: '',
+                retoFijo: false,
+                completada: false,
+                dias: {}
+            };
+            this.dias.forEach(dia => {
+                this.data[this.currentWeek].dias[dia.toLowerCase()] = { cumplido: null, resultado: null };
+            });
         }
-        this.currentWeek = `${newYear}-W${newWeek.toString().padStart(2, '0')}`;
+        return this.data[this.currentWeek];
+    }
+
+    renderAll() {
         this.renderWeekDisplay();
         this.renderDias();
         this.renderEstadisticas();
-        this.loadCurrentWeekData();
-      }
-
-    changeMonth(direction) {
-        this.currentMonth += direction;
-        if (this.currentMonth < 0) {
-            this.currentMonth = 11;
-            this.currentYear--;
-        } else if (this.currentMonth > 11) {
-            this.currentMonth = 0;
-            this.currentYear++;
-        }
         this.renderMonthlyStats();
+        this.renderHistorial();
+        this.loadCurrentWeekData();
     }
 
     renderWeekDisplay() {
@@ -3158,116 +3003,48 @@ if ('serviceWorker' in navigator) {
 
     renderDias() {
         const container = document.getElementById('diasGrid');
-        container.innerHTML = '';
+        container.innerHTML = `<div class="dias-grid-header"><span>Día</span><span>Reto</span><span>Operativa</span></div>`;
         const weekData = this.getCurrentWeekData();
         const isCompletada = weekData.completada;
-        this.dias.forEach((dia, index) => {
+
+        this.dias.forEach(dia => {
             const diaKey = dia.toLowerCase();
             const diaData = weekData.dias[diaKey];
-            const diaCard = document.createElement('div');
-            diaCard.className = 'dia-card';
-            diaCard.innerHTML = `
-                <div class="dia-nombre">${dia}</div>
-                <div class="dia-controles">
-                    <button class="btn-cumplido ${diaData.cumplido === true ? 'active' : ''}" 
-                            onclick="app.toggleDia('${diaKey}', true)" ${isCompletada ? 'disabled' : ''}>✓</button>
-                    <button class="btn-no-cumplido ${diaData.cumplido === false ? 'active' : ''}" 
-                            onclick="app.toggleDia('${diaKey}', false)" ${isCompletada ? 'disabled' : ''}>✗</button>
-                </div>
-                <p>Resultado operativa </p>
-                <div class="resultado-selector ${diaData.cumplido !== null ? 'visible' : ''}">
-                    <select onchange="app.updateResultado('${diaKey}', this.value)" ${isCompletada ? 'disabled' : ''}>
-                        <option value="">Seleccionar resultado...</option>
+            const diaElemento = document.createElement('div');
+            diaElemento.className = 'dia-linea';
+            diaElemento.style.gridTemplateColumns = "100px 40px 40px 1fr";
+
+            diaElemento.innerHTML = `
+                <span class="dia-nombre-lineal">${dia}</span>
+                <button class="btn-cumplido-check ${diaData.cumplido === true ? 'active' : ''}" 
+                        onclick="window.app.toggleDia('${diaKey}', true)" 
+                        ${isCompletada ? 'disabled' : ''}>✓</button>
+                <button class="btn-no-cumplido-check ${diaData.cumplido === false ? 'active' : ''}" 
+                        onclick="window.app.toggleDia('${diaKey}', false)" 
+                        ${isCompletada ? 'disabled' : ''}>✗</button>
+                <div class="resultado-selector-lineal">
+                    <select onchange="window.app.updateResultado('${diaKey}', this.value)" ${isCompletada ? 'disabled' : ''}>
+                        <option value="">Resultado...</option>
                         <option value="positivo" ${diaData.resultado === 'positivo' ? 'selected' : ''}>Positivo</option>
                         <option value="negativo" ${diaData.resultado === 'negativo' ? 'selected' : ''}>Negativo</option>
                     </select>
-                </div>
-            `;
-            container.appendChild(diaCard);
+                </div>`;
+            container.appendChild(diaElemento);
         });
         this.actualizarBotonGuardar();
     }
-
+    
     toggleDia(diaKey, cumplido) {
         const weekData = this.getCurrentWeekData();
-        if (weekData.dias[diaKey].cumplido === cumplido) {
-            weekData.dias[diaKey].cumplido = null;
-            weekData.dias[diaKey].resultado = null;
+        const dia = weekData.dias[diaKey];
+        if (dia.cumplido === cumplido) {
+            dia.cumplido = null;
         } else {
-            weekData.dias[diaKey].cumplido = cumplido;
+            dia.cumplido = cumplido;
         }
         this.saveData();
         this.renderDias();
         this.renderEstadisticas();
-    }
-
-    updateResultado(diaKey, resultado) {
-        const weekData = this.getCurrentWeekData();
-        weekData.dias[diaKey].resultado = resultado || null;
-        this.saveData();
-        this.renderEstadisticas();
-    }
-
-    updateReto(reto) {
-        const weekData = this.getCurrentWeekData();
-        if (!weekData.retoFijo) {
-            weekData.reto = reto;
-            this.saveData();
-        }
-    }
-
-    fixReto() {
-        const weekData = this.getCurrentWeekData();
-        const btnEditar = document.getElementById('btnEditarReto');
-        if (weekData.reto && !weekData.retoFijo) {
-            weekData.retoFijo = true;
-            document.getElementById('retoInput').disabled = true;
-            this.saveData();
-            if (!weekData.completada) {
-                btnEditar.style.display = 'flex';
-            }
-        }
-    }
-
-    loadCurrentWeekData() {
-        const weekData = this.getCurrentWeekData();
-        const retoInput = document.getElementById('retoInput');
-        const btnEditar = document.getElementById('btnEditarReto');
-        const btnGuardar = document.getElementById('btnGuardarReto');
-        retoInput.value = weekData.reto;
-        retoInput.disabled = weekData.retoFijo;
-        if (weekData.reto && weekData.retoFijo && !weekData.completada) {
-            btnEditar.style.display = 'flex';
-            btnGuardar.style.display = 'none';
-        } else {
-            btnEditar.style.display = 'none';
-            btnGuardar.style.display = 'none';
-        }
-    }
-
-    editarReto() {
-        const retoInput = document.getElementById('retoInput');
-        const btnEditar = document.getElementById('btnEditarReto');
-        const btnGuardar = document.getElementById('btnGuardarReto');
-        retoInput.disabled = false;
-        retoInput.focus();
-        btnEditar.style.display = 'none';
-        btnGuardar.style.display = 'flex';
-    }
-
-    guardarReto() {
-        const weekData = this.getCurrentWeekData();
-        const retoInput = document.getElementById('retoInput');
-        const btnEditar = document.getElementById('btnEditarReto');
-        const btnGuardar = document.getElementById('btnGuardarReto');
-        weekData.reto = retoInput.value;
-        weekData.retoFijo = true;
-        retoInput.disabled = true;
-        btnGuardar.style.display = 'none';
-        if (weekData.reto) {
-            btnEditar.style.display = 'flex';
-        }
-        this.saveData();
     }
 
     renderEstadisticas() {
@@ -3278,324 +3055,234 @@ if ('serviceWorker' in navigator) {
         const resultadosNegativos = dias.filter(d => d.resultado === 'negativo').length;
         const diasMarcados = dias.filter(d => d.cumplido !== null).length;
         const porcentajeCumplimiento = diasMarcados > 0 ? Math.round((diasCumplidos / diasMarcados) * 100) : 0;
-        const diasEfectivos = dias.filter(d => d.cumplido === true && d.resultado === 'positivo').length;
-        const efectividad = diasCumplidos > 0 ? Math.round((diasEfectivos / diasCumplidos) * 100) : 0;
+        const efectividad = diasCumplidos > 0 ? Math.round(dias.filter(d => d.cumplido === true && d.resultado === 'positivo').length / diasCumplidos * 100) : 0;
+
         document.getElementById('diasCumplidos').textContent = diasCumplidos;
         document.getElementById('resultadosPositivos').textContent = resultadosPositivos;
         document.getElementById('resultadosNegativos').textContent = resultadosNegativos;
         document.getElementById('porcentajeCumplimiento').textContent = `${porcentajeCumplimiento}%`;
         document.getElementById('efectividad').textContent = `${efectividad}%`;
         this.renderChart(dias);
-        this.actualizarBotonGuardar();
-    }
-
-    actualizarBotonGuardar() {
-        const weekData = this.getCurrentWeekData();
-        const diasMarcados = Object.values(weekData.dias).filter(d => d.cumplido !== null).length;
-        const btn = document.getElementById('btnGuardarHistorial');
-        btn.style.display = weekData.reto && diasMarcados > 0 && !weekData.completada ? 'block' : 'none';
     }
 
     renderChart(dias) {
         const canvas = document.getElementById('chartCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const retoData = [];
-        const operativaData = [];
-        this.dias.forEach((dia, index) => {
-            const diaData = dias[index];
-            if (diaData.cumplido !== null) {
-                retoData.push(diaData.cumplido ? 1 : 0);
-            } else {
-                retoData.push(null);
-            }
-            if (diaData.resultado !== null) {
-                operativaData.push(diaData.resultado === 'positivo' ? 1 : 0);
-            } else {
-                operativaData.push(null);
-            }
+        if (!canvas) return;
+        if (this.chartInstance) this.chartInstance.destroy();
+        const retoData = dias.map(d => d.cumplido === null ? null : (d.cumplido ? 1 : 0));
+        const operativaData = dias.map(d => d.resultado === null ? null : (d.resultado === 'positivo' ? 1 : -1));
+        this.chartInstance = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: { labels: this.dias, datasets: [{ label: 'Cumplimiento Reto', data: retoData, borderColor: '#00f2ea', tension: 0.4 }, { label: 'Resultado Operativa', data: operativaData, borderColor: '#ef44bc', tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: '#b3b3b3', callback: v => { if (v === 1) return 'Positivo/Cumplido'; if (v === 0) return 'Neutral/No Cumplido'; if (v === -1) return 'Negativo'; return null; } } }, x: { ticks: { color: '#b3b3b3' } } }, plugins: { legend: { labels: { color: '#ffffff' } }, title: { display: true, text: 'Progreso Semanal: Reto vs Operativa', color: '#ffffff' } } }
         });
-        const padding = 60;
-        const width = canvas.width - 2 * padding;
-        const height = canvas.height - 2 * padding;
-        const stepX = width / (this.dias.length - 1);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#f0f0f0';
-        ctx.lineWidth = 1;
-        for (let i = 0; i <= 2; i++) {
-            const y = padding + (height / 2) * i;
-            ctx.beginPath();
-            ctx.moveTo(padding, y);
-            ctx.lineTo(padding + width, y);
-            ctx.stroke();
-        }
-        this.dias.forEach((dia, index) => {
-            const x = padding + index * stepX;
-            ctx.strokeStyle = '#f8f9fa';
-            ctx.beginPath();
-            ctx.moveTo(x, padding);
-            ctx.lineTo(x, padding + height);
-            ctx.stroke();
-        });
-        ctx.fillStyle = '#4a90e2';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'right';
-        ctx.fillText('Cumplido', padding - 10, padding + 5);
-        ctx.fillText('No Cumplido', padding - 10, padding + height + 5);
-        ctx.textAlign = 'left';
-        ctx.fillStyle = '#28a745';
-        ctx.fillText('Positivo', padding + width + 10, padding + 5);
-        ctx.fillStyle = '#dc3545';
-        ctx.fillText('Negativo', padding + width + 10, padding + height + 5);
-        ctx.fillStyle = '#6c757d';
-        ctx.textAlign = 'center';
-        ctx.font = '11px Arial';
-        this.dias.forEach((dia, index) => {
-            const x = padding + index * stepX;
-            ctx.fillText(dia.substring(0, 3), x, padding + height + 25);
-        });
-        const drawCurvedLine = (data, color, lineWidth = 3) => {
-            const validPoints = [];
-            data.forEach((value, index) => {
-                if (value !== null) {
-                    const x = padding + index * stepX;
-                    const y = padding + height - (value * height);
-                    validPoints.push({ x, y, value });
-                }
-            });
-            if (validPoints.length < 2) return;
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.beginPath();
-            ctx.moveTo(validPoints[0].x, validPoints[0].y);
-            for (let i = 1; i < validPoints.length; i++) {
-                const prevPoint = validPoints[i - 1];
-                const currentPoint = validPoints[i];
-                if (i === 1) {
-                    const cpx = prevPoint.x + (currentPoint.x - prevPoint.x) / 2;
-                    ctx.quadraticCurveTo(cpx, prevPoint.y, currentPoint.x, currentPoint.y);
-                } else {
-                    const cp1x = prevPoint.x + (currentPoint.x - prevPoint.x) / 3;
-                    const cp1y = prevPoint.y;
-                    const cp2x = currentPoint.x - (currentPoint.x - prevPoint.x) / 3;
-                    const cp2y = currentPoint.y;
-                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, currentPoint.x, currentPoint.y);
-                }
-            }
-            ctx.stroke();
-            validPoints.forEach(point => {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            });
-        };
-        drawCurvedLine(retoData, '#4a90e2');
-        drawCurvedLine(operativaData, '#28a745');
-        const legendY = 35;
-        ctx.fillStyle = '#4a90e2';
-        ctx.fillRect(padding, legendY, 15, 3);
-        ctx.fillStyle = '#2c3e50';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText('Cumplimiento Reto', padding + 20, legendY + 10);
-        ctx.fillStyle = '#28a745';
-        ctx.fillRect(padding + 160, legendY, 15, 3);
-        ctx.fillText('Resultado Operativa', padding + 180, legendY + 10);
-        ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Progreso Semanal: Reto vs Operativa', canvas.width / 2, 20);
     }
 
     renderMonthlyStats() {
-        const monthNames = [
-            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-        ];
-        document.getElementById('currentMonth').textContent = 
-            `${monthNames[this.currentMonth]} ${this.currentYear}`;
-        const semanasDelMes = Object.keys(this.data).filter(weekKey => {
-            const weekDate = this.getWeekDates(weekKey);
-            return weekDate.getMonth() === this.currentMonth && 
-                   weekDate.getFullYear() === this.currentYear && 
-                   this.data[weekKey].completada;
-        });
-        let totalDiasCumplidos = 0;
-        let totalPositivos = 0;
-        let totalDiasMarcados = 0;
-        semanasDelMes.forEach(weekKey => {
-            const weekData = this.data[weekKey];
-            const dias = Object.values(weekData.dias);
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        document.getElementById('currentMonth').textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
+        const semanasDelMes = Object.keys(this.data).filter(k => this.data[k].completada && new Date(this.getWeekDates(k)).getMonth() === this.currentMonth && new Date(this.getWeekDates(k)).getFullYear() === this.currentYear);
+        let totalDiasCumplidos = 0, totalPositivos = 0, totalDiasMarcados = 0;
+        semanasDelMes.forEach(key => {
+            const dias = Object.values(this.data[key].dias);
             totalDiasCumplidos += dias.filter(d => d.cumplido === true).length;
             totalPositivos += dias.filter(d => d.resultado === 'positivo').length;
             totalDiasMarcados += dias.filter(d => d.cumplido !== null).length;
         });
-        const cumplimientoMes = totalDiasMarcados > 0 ? 
-            Math.round((totalDiasCumplidos / totalDiasMarcados) * 100) : 0;
         document.getElementById('semanasDelMes').textContent = semanasDelMes.length;
         document.getElementById('diasCumplidosMes').textContent = totalDiasCumplidos;
         document.getElementById('positivosMes').textContent = totalPositivos;
-        document.getElementById('cumplimientoMes').textContent = `${cumplimientoMes}%`;
-        const maxDiasPosibles = semanasDelMes.length * 5;
-        const progressPercent = maxDiasPosibles > 0 ? (totalDiasCumplidos / maxDiasPosibles) * 100 : 0;
-        document.getElementById('progressFill').style.width = `${progressPercent}%`;
-        document.getElementById('progressText').textContent = 
-            `${totalDiasCumplidos} de ${maxDiasPosibles} días completados`;
+        document.getElementById('cumplimientoMes').textContent = `${totalDiasMarcados > 0 ? Math.round((totalDiasCumplidos / totalDiasMarcados) * 100) : 0}%`;
         this.renderMonthlyChart(semanasDelMes);
     }
 
     renderMonthlyChart(semanasDelMes) {
         const canvas = document.getElementById('monthlyChart');
+        if (!canvas) return;
+        if (this.monthlyChartInstance) this.monthlyChartInstance.destroy();
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (semanasDelMes.length === 0) {
-            ctx.fillStyle = '#6c757d';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('No hay datos para este mes', canvas.width / 2, canvas.height / 2);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#6c757d'; ctx.textAlign = 'center'; ctx.fillText('No hay datos para este mes', canvas.width / 2, canvas.height / 2);
             return;
         }
-        const weeklyData = semanasDelMes.map(weekKey => {
-            const weekData = this.data[weekKey];
-            const dias = Object.values(weekData.dias);
-            const cumplidos = dias.filter(d => d.cumplido === true).length;
-            const positivos = dias.filter(d => d.resultado === 'positivo').length;
-            return { cumplidos, positivos, semana: weekKey };
+        const labels = semanasDelMes.map(k => `Semana ${k.split('-W')[1]}`);
+        const cumplidosData = semanasDelMes.map(k => Object.values(this.data[k].dias).filter(d => d.cumplido === true).length);
+        const positivosData = semanasDelMes.map(k => Object.values(this.data[k].dias).filter(d => d.resultado === 'positivo').length);
+        this.monthlyChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Días Cumplidos', data: cumplidosData, backgroundColor: '#00f2ea' }, { label: 'Resultados Positivos', data: positivosData, backgroundColor: '#ef44bc' }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: '#b3b3b3', stepSize: 1 } } }, plugins: { legend: { labels: { color: '#ffffff' } }, title: { display: true, text: 'Resumen Mensual por Semana', color: '#ffffff' } } }
         });
-        const padding = 50;
-        const width = canvas.width - 2 * padding;
-        const height = canvas.height - 2 * padding;
-        const barWidth = width / (weeklyData.length * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        weeklyData.forEach((data, index) => {
-            const x = padding + index * (barWidth * 2);
-            const cumplidosHeight = (data.cumplidos / 5) * height;
-            ctx.fillStyle = '#4a90e2';
-            ctx.fillRect(x, padding + height - cumplidosHeight, barWidth * 0.8, cumplidosHeight);
-            const positivosHeight = (data.positivos / 5) * height;
-            ctx.fillStyle = '#28a745';
-            ctx.fillRect(x + barWidth * 0.2, padding + height - positivosHeight, barWidth * 0.6, positivosHeight);
-            ctx.fillStyle = '#6c757d';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`S${data.semana.split('-W')[1]}`, x + barWidth * 0.4, padding + height + 20);
-        });
-        ctx.fillStyle = '#4a90e2';
-        ctx.fillRect(padding, 10, 15, 15);
-        ctx.fillStyle = '#2c3e50';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText('Cumplidos', padding + 20, 22);
-        ctx.fillStyle = '#28a745';
-        ctx.fillRect(padding + 100, 10, 15, 15);
-        ctx.fillText('Positivos', padding + 120, 22);
-        ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Progreso Mensual', canvas.width / 2, canvas.height - 10);
-    }
-
-    eliminarSemana(semanaKey) {
-        if (confirm(`¿Estás seguro de que quieres eliminar la semana ${this.formatWeekName(semanaKey)}? Esta acción no se puede deshacer.`)) {
-            delete this.data[semanaKey];
-            this.saveData();
-            this.renderHistorial();
-            alert('Semana eliminada exitosamente.');
-            if (semanaKey === this.currentWeek) {
-                this.renderDias();
-                this.renderEstadisticas();
-                this.loadCurrentWeekData();
-            }
-        }
     }
 
     renderHistorial() {
         const container = document.getElementById('historialContainer');
         container.innerHTML = '';
-        const semanas = Object.keys(this.data)
-            .filter(key => this.data[key].completada)
-            .sort((a, b) => {
-                const [yearA, weekA] = a.split('-W').map(Number);
-                const [yearB, weekB] = b.split('-W').map(Number);
-                return yearB - yearA || weekB - weekA;
-            });
-        if (semanas.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: #6c757d;">No hay historial disponible</p>';
-            return;
-        }
-        semanas.forEach(semanaKey => {
-            const semanaData = this.data[semanaKey];
+        const semanas = Object.keys(this.data).filter(key => this.data[key].completada).sort((a, b) => b.localeCompare(a));
+        if (semanas.length === 0) { container.innerHTML = '<p style="text-align: center; color: #6c757d;">No hay historial disponible</p>'; return; }
+        semanas.forEach(key => {
+            const semanaData = this.data[key];
             const dias = Object.values(semanaData.dias);
-            const diasCumplidos = dias.filter(d => d.cumplido === true).length;
-            const resultadosPositivos = dias.filter(d => d.resultado === 'positivo').length;
-            const diasMarcados = dias.filter(d => d.cumplido !== null).length;
-            const porcentaje = diasMarcados > 0 ? Math.round((diasCumplidos / diasMarcados) * 100) : 0;
-            let checklistHTML = '<div class="checklist-dias" style="margin-top: 10px; font-size: 12px;">';
-            this.dias.forEach((dia, index) => {
-                const diaKey = dia.toLowerCase();
-                const diaData = semanaData.dias[diaKey];
-                let cumplidoIcon = diaData.cumplido === true ? '✓' : (diaData.cumplido === false ? '✗' : '-');
-                let resultadoIcon = diaData.resultado === 'positivo' ? '+' : (diaData.resultado === 'negativo' ? '-' : '');
-                checklistHTML += `<div>${dia}: ${cumplidoIcon} ${resultadoIcon}</div>`;
-            });
-            checklistHTML += '</div>';
+            const cumplidos = dias.filter(d => d.cumplido === true).length;
+            const positivos = dias.filter(d => d.resultado === 'positivo').length;
+            const porcentaje = dias.filter(d => d.cumplido !== null).length > 0 ? Math.round(cumplidos / dias.filter(d => d.cumplido !== null).length * 100) : 0;
             const item = document.createElement('div');
             item.className = 'historial-item';
-            item.innerHTML = `
-                <div>
-                    <div class="historial-fecha">${this.formatWeekName(semanaKey)}</div>
-                    <div class="historial-stats">${diasCumplidos}/5 cumplidos (${porcentaje}%), ${resultadosPositivos} positivos</div>
-                    <div class="historial-reto">${semanaData.reto || 'Sin reto definido'}</div>
-                    ${checklistHTML}
-                </div>
-                <div>
-                    <button class="btn-ver-semana" onclick="app.verSemana('${semanaKey}')">Ver</button>
-                    <button class="btn-eliminar-semana" onclick="app.eliminarSemana('${semanaKey}')">Eliminar</button>
-                </div>
-            `;
+            item.innerHTML = `<div><div class="historial-fecha">${this.formatWeekName(key)}</div><div class="historial-stats">${cumplidos}/5 cumplidos (${porcentaje}%), ${positivos} positivos</div><div class="historial-reto">${semanaData.reto || 'Sin reto'}</div></div><div><button class="btn-ver-semana" onclick="window.app.verSemana('${key}')">Ver</button><button class="btn-eliminar-semana" onclick="window.app.eliminarSemana('${key}')">Eliminar</button></div>`;
             container.appendChild(item);
         });
     }
 
-    borrarHistorial() {
-        if (confirm('¿Estás seguro de que quieres borrar todo el historial? Esta acción no se puede deshacer.')) {
-            Object.keys(this.data).forEach(key => {
-                if (this.data[key].completada) {
-                    delete this.data[key];
-                }
-            });
+    changeWeek(direction) {
+        const [year, week] = this.currentWeek.split('-W');
+        let newWeek = parseInt(week) + direction;
+        let newYear = parseInt(year);
+        if (newWeek < 1) { newWeek = 52; newYear--; } 
+        else if (newWeek > 52) { newWeek = 1; newYear++; }
+        this.currentWeek = `${newYear}-W${String(newWeek).padStart(2, '0')}`;
+        this.renderAll();
+    }
+
+    changeMonth(direction) {
+        this.currentMonth += direction;
+        if (this.currentMonth < 0) { this.currentMonth = 11; this.currentYear--; }
+        else if (this.currentMonth > 11) { this.currentMonth = 0; this.currentYear++; }
+        this.renderMonthlyStats();
+    }
+
+    updateResultado(diaKey, resultado) {
+        this.getCurrentWeekData().dias[diaKey].resultado = resultado || null;
+        this.saveData();
+        this.renderEstadisticas();
+    }
+
+    updateReto(reto) {
+        if (!this.getCurrentWeekData().retoFijo) this.getCurrentWeekData().reto = reto;
+        this.saveData();
+    }
+
+    fixReto() {
+        const weekData = this.getCurrentWeekData();
+        if (weekData.reto && !weekData.retoFijo) {
+            weekData.retoFijo = true;
             this.saveData();
-            this.renderHistorial();
-            alert('Historial borrado exitosamente.');
+            this.loadCurrentWeekData();
         }
     }
 
-    guardarEnHistorial() {
+    editarReto() {
+        document.getElementById('retoInput').disabled = false;
+        document.getElementById('retoInput').focus();
+        document.getElementById('btnEditarReto').style.display = 'none';
+        document.getElementById('btnGuardarReto').style.display = 'flex';
+    }
+
+    guardarReto() {
         const weekData = this.getCurrentWeekData();
-        weekData.completada = true;
+        weekData.reto = document.getElementById('retoInput').value;
+        weekData.retoFijo = true;
+        this.saveData();
+        this.loadCurrentWeekData();
+    }
+
+    loadCurrentWeekData() {
+        const weekData = this.getCurrentWeekData();
+        const retoInput = document.getElementById('retoInput');
+        const btnEditar = document.getElementById('btnEditarReto');
+        const btnGuardar = document.getElementById('btnGuardarReto');
+        retoInput.value = weekData.reto;
+        retoInput.disabled = weekData.retoFijo || weekData.completada;
+        if (weekData.completada) {
+            btnEditar.style.display = 'none';
+            btnGuardar.style.display = 'none';
+        } else if (weekData.retoFijo) {
+            btnEditar.style.display = 'flex';
+            btnGuardar.style.display = 'none';
+        } else {
+            btnEditar.style.display = 'none';
+            btnGuardar.style.display = 'none';
+        }
+    }
+
+    actualizarBotonGuardar() {
+        const weekData = this.getCurrentWeekData();
+        const diasMarcados = Object.values(weekData.dias).filter(d => d.cumplido !== null || d.resultado !== null).length;
+        document.getElementById('btnGuardarHistorial').style.display = (weekData.reto && diasMarcados > 0 && !weekData.completada) ? 'block' : 'none';
+    }
+
+    guardarEnHistorial() {
+        this.getCurrentWeekData().completada = true;
         this.saveData();
         alert('Semana finalizada y guardada en el historial.');
-        this.renderHistorial();
-        this.switchTab('historial');
+        this.renderAll();
     }
 
     verSemana(semanaKey) {
         this.currentWeek = semanaKey;
-        this.switchTab('semanal');
-        this.renderWeekDisplay();
-        this.renderDias();
-        this.renderEstadisticas();
-        this.loadCurrentWeekData();
+        this.renderAll();
+        document.getElementById('Retos').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    eliminarSemana(semanaKey) {
+        if (confirm(`¿Estás seguro de que quieres eliminar la semana ${this.formatWeekName(semanaKey)}?`)) {
+            delete this.data[semanaKey];
+            this.saveData();
+            this.renderAll();
+        }
+    }
+
+    borrarHistorial() {
+        if (confirm('¿Estás seguro de que quieres borrar todo el historial?')) {
+            Object.keys(this.data).forEach(key => { if (this.data[key].completada) delete this.data[key]; });
+            this.saveData();
+            this.renderAll();
+        }
+    }
+
+    getCurrentWeekKey() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const week = this.getWeekNumber(now);
+        return `${year}-W${String(week).padStart(2, '0')}`;
+    }
+
+    getWeekDates(weekKey) {
+        const [year, week] = weekKey.split('-W');
+        const d = new Date(year, 0, 1 + (parseInt(week) - 1) * 7);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        return new Date(d.setDate(diff));
+    }
+
+    getWeekNumber(date) {
+        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    formatWeekName(weekKey) {
+        const weekStart = this.getWeekDates(weekKey);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 4);
+        const formatDate = (date) => date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+        return `${formatDate(weekStart)} - ${formatDate(weekEnd)}`;
     }
 }
 
-const app = new RetosSemanales();
+// --- INICIALIZACIÓN CONTROLADA ---
+let app; 
+
+const originalOpenTab = window.openTab;
+window.openTab = function(tabName) {
+    originalOpenTab(tabName); 
+    
+    if (tabName === 'Retos' && !window.app) {
+        window.app = new RetosSemanales();
+    }
+}
+
     </script>
 </body>
 </html>
