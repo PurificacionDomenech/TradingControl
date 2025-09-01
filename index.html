@@ -2832,7 +2832,6 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-
 function renderCapitalGrowthChart() {
     const canvas = document.getElementById('capitalGrowthChart');
     if (!canvas) {
@@ -2847,41 +2846,46 @@ function renderCapitalGrowthChart() {
     // --- 1. Agrupar Operaciones por Día ---
     const dailyBalances = {};
     let runningBalance = settings.initialBalance;
+    let highWaterMark = settings.initialBalance;
 
     const sortedOperations = [...operations].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     sortedOperations.forEach(op => {
-        // Acumulamos el saldo operación por operación
         runningBalance += op.amount;
-        // Guardamos solo el último saldo del día. Si hay varias ops en un día, se sobrescribe hasta quedar el final.
         dailyBalances[op.date] = runningBalance;
+        highWaterMark = Math.max(highWaterMark, runningBalance);
     });
 
     // --- 2. Preparar los Datos para el Gráfico ---
-    // El gráfico empieza con el saldo inicial en la fecha de la primera operación.
     const labels = [];
     const balanceData = [];
-    
+    const drawdownData = [];
+
     if (sortedOperations.length > 0) {
         const firstOpDate = new Date(sortedOperations[0].date);
-        firstOpDate.setDate(firstOpDate.getDate() - 1); // Un día antes para que se vea el "bajón" inicial
+        firstOpDate.setDate(firstOpDate.getDate() - 1); // Un día antes para el "bajón" inicial
         
         labels.push(firstOpDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
         balanceData.push(settings.initialBalance);
+        drawdownData.push(settings.initialBalance - settings.trailingDrawdownAmount); // Drawdown inicial
     }
 
-    // Añadimos cada saldo diario al gráfico
+    let currentHWM = settings.initialBalance;
     for (const date in dailyBalances) {
         labels.push(new Date(date).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
         balanceData.push(dailyBalances[date]);
+        currentHWM = Math.max(currentHWM, dailyBalances[date]); // Actualizamos HWM hasta este punto
+        // Calculamos el drawdown basado en el HWM actual, con lógica de buffer
+        let drawdownValue = currentHWM - settings.trailingDrawdownAmount;
+        if (currentHWM >= settings.initialBalance + settings.trailingDrawdownAmount) {
+            drawdownValue = settings.initialBalance; // Fijamos si supera el buffer
+        } else {
+            drawdownValue = Math.max(drawdownValue, settings.initialBalance - settings.trailingDrawdownAmount); // Mínimo permitido
+        }
+        drawdownData.push(drawdownValue);
     }
 
-    // --- 3. Línea de Drawdown (como en Bulenox) ---
-    // Creamos una línea recta que cruza todo el gráfico en el valor del suelo de drawdown.
-    const drawdownLineValue = settings.initialBalance - settings.trailingDrawdownAmount;
-    const drawdownData = Array(labels.length).fill(drawdownLineValue);
-
-    // --- 4. Creación del Gráfico Estilo Bulenox ---
+    // --- 3. Creación del Gráfico Estilo Bulenox ---
     window.capitalGrowthChartInstance = new Chart(canvas.getContext('2d'), {
         type: 'line',
         data: {
@@ -2890,19 +2894,19 @@ function renderCapitalGrowthChart() {
                 {
                     label: 'Balance',
                     data: balanceData,
-                    borderColor: '#00f2ea', // Tu color turquesa
+                    borderColor: '#00f2ea',
                     backgroundColor: 'rgba(0, 242, 234, 0.1)',
                     fill: true,
                     tension: 0.1,
-                    pointRadius: 2, // Puntos pequeños en cada día de operativa
+                    pointRadius: 5, // Aumentado de 2 a 5 para puntos más grandes
                 },
                 {
                     label: 'Suelo Drawdown',
                     data: drawdownData,
-                    borderColor: '#ef44bc', // Tu color rosa
-                    borderWidth: 2, // Línea un poco más gruesa
+                    borderColor: '#ef44bc',
+                    borderWidth: 2,
                     fill: false,
-                    pointRadius: 0, // Sin puntos en la línea de drawdown
+                    pointRadius: 5, // Cambiado de 0 a 5 para mostrar puntos grandes
                 }
             ]
         },
@@ -2912,7 +2916,7 @@ function renderCapitalGrowthChart() {
             animation: false,
             scales: {
                 x: {
-                    ticks: { color: '#b3b3b3', maxRotation: 0, minRotation: 0, autoSkip: true, maxTicksLimit: 8 }, // Muestra máx. 8 fechas
+                    ticks: { color: '#b3b3b3', maxRotation: 0, minRotation: 0, autoSkip: true, maxTicksLimit: 8 },
                     grid: { color: 'rgba(255, 255, 255, 0.1)' }
                 },
                 y: {
@@ -2921,19 +2925,21 @@ function renderCapitalGrowthChart() {
                 }
             },
             plugins: {
-                legend: { display: true }, 
-                position: 'top',
-                align: 'start',
-                 labels: {
-                 color: '#ffffff', // Color del texto
-                 boxWidth: 20,     // Ancho de la caja de color
-                 padding: 20
-                } 
-  
+                legend: { 
+                    display: true,
+                    position: 'top',
+                    align: 'start',
+                    labels: {
+                        color: '#ffffff',
+                        boxWidth: 20,
+                        padding: 20
+                    }
+                }
             }
         }
     });
 }
+
 class RetosSemanales {
     constructor() {
         this.currentWeek = this.getCurrentWeekKey();
