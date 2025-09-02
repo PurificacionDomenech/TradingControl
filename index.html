@@ -48,7 +48,7 @@
 
         h1 {
             text-align: center;
-            color: #00f2ea;
+            color: #00f2eab9;
             font-size: 24px;
         }
 
@@ -103,12 +103,12 @@
         }
 
         .tab:hover {
-            background-color: #00f2ea;
+            background-color: #00f2eaba;
             color: #000000;
         }
 
         .tab.active {
-            background-color: #00f2ea;
+            background-color: #00f2eac7;
             color: #000000;
         }
    
@@ -169,7 +169,7 @@
         }
 
         button {
-            background-color: #00f2ea;
+            background-color: #00f2eaca;
             color: #000000;
             border: none;
             padding: 10px 15px;
@@ -181,11 +181,11 @@
         }
 
         button:hover {
-            background-color: #00d4d1;
+            background-color: #00d4d0c2;
         }
 
         .button-secondary {
-            background-color: #58ddf5;
+            background-color: #58f5e8b7;
         }
 
         .button-secondary:hover {
@@ -197,7 +197,7 @@
         }
 
         .button-danger:hover {
-            background-color: #dc2693;
+            background-color: #dc2693bd;
         }
 
         .button-small {
@@ -1220,7 +1220,7 @@
         </div>
          <div class="form-group">
             <label for="activo">Activo:</label>
-            <select id="activo" name="activo" >
+            <select id="activo" name="activo" onchange="handleAssetSelection(this)"> >
                 <option value="">Seleccionar...</option>
                 <option value="Nasdaq">Nasdaq</option>
                 <option value="Oro">Oro</option>
@@ -1232,7 +1232,7 @@
         </div>
         <div class="form-group">
             <label for="estrategia">Estrategia:</label>
-            <select id="estrategia" name="estrategia">
+            <select id="estrategia" name="estrategia" onchange="handleAssetSelection(this)">
                 <option value="">Seleccionar...</option>
                 <option value="Flash">Flash</option>
                 <option value="Monarca">Monarca</option>
@@ -1507,6 +1507,7 @@
                     <button id="prevMonthBtn">← Mes Anterior</button>
                     <h3 id="currentMonth"></h3>
                     <button id="nextMonthBtn">Mes Siguiente →</button>
+                   <button id="toggleTotalViewBtn" style="background-color: var(--accent-secondary);">Ver Todo</button>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-number" id="semanasDelMes">0</div><div class="stat-label">Semanas Registradas</div></div>
@@ -2949,6 +2950,7 @@ class RetosSemanales {
         this.dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
         this.chartInstance = null;
         this.monthlyChartInstance = null;
+        this.viendoTodo = false;
         this.init();
     }
 
@@ -2968,6 +2970,7 @@ class RetosSemanales {
         document.getElementById('btnGuardarReto').addEventListener('click', () => this.guardarReto());
         document.getElementById('prevMonthBtn').addEventListener('click', () => this.changeMonth(-1));
         document.getElementById('nextMonthBtn').addEventListener('click', () => this.changeMonth(1));
+        document.getElementById('toggleTotalViewBtn').addEventListener('click', () => this.toggleVistaTotal());
     }
 
     loadData() {
@@ -2993,6 +2996,13 @@ class RetosSemanales {
         }
         return this.data[this.currentWeek];
     }
+
+toggleVistaTotal() {
+    // Invierte el estado actual (si es true, se vuelve false, y viceversa)
+    this.viendoTodo = !this.viendoTodo;
+    // Vuelve a renderizar las estadísticas con el nuevo estado
+    this.renderMonthlyStats();
+}
 
     renderAll() {
         this.renderWeekDisplay();
@@ -3083,24 +3093,54 @@ class RetosSemanales {
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: '#b3b3b3', callback: v => { if (v === 1) return 'Positivo/Cumplido'; if (v === 0) return 'Neutral/No Cumplido'; if (v === -1) return 'Negativo'; return null; } } }, x: { ticks: { color: '#b3b3b3' } } }, plugins: { legend: { labels: { color: '#ffffff' } }, title: { display: true, text: 'Progreso Semanal: Reto vs Operativa', color: '#ffffff' } } }
         });
     }
-
     renderMonthlyStats() {
-        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-        document.getElementById('currentMonth').textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
-        const semanasDelMes = Object.keys(this.data).filter(k => this.data[k].completada && new Date(this.getWeekDates(k)).getMonth() === this.currentMonth && new Date(this.getWeekDates(k)).getFullYear() === this.currentYear);
-        let totalDiasCumplidos = 0, totalPositivos = 0, totalDiasMarcados = 0;
-        semanasDelMes.forEach(key => {
-            const dias = Object.values(this.data[key].dias);
-            totalDiasCumplidos += dias.filter(d => d.cumplido === true).length;
-            totalPositivos += dias.filter(d => d.resultado === 'positivo').length;
-            totalDiasMarcados += dias.filter(d => d.cumplido !== null).length;
-        });
-        document.getElementById('semanasDelMes').textContent = semanasDelMes.length;
-        document.getElementById('diasCumplidosMes').textContent = totalDiasCumplidos;
-        document.getElementById('positivosMes').textContent = totalPositivos;
-        document.getElementById('cumplimientoMes').textContent = `${totalDiasMarcados > 0 ? Math.round((totalDiasCumplidos / totalDiasMarcados) * 100) : 0}%`;
-        this.renderMonthlyChart(semanasDelMes);
+    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const titulo = document.getElementById('currentMonth');
+    const prevBtn = document.getElementById('prevMonthBtn');
+    const nextBtn = document.getElementById('nextMonthBtn');
+    const toggleBtn = document.getElementById('toggleTotalViewBtn');
+
+    let semanasDelPeriodo;
+
+    if (this.viendoTodo) {
+        // --- MODO "VER TODO" ---
+        titulo.textContent = 'Historial Completo';
+        toggleBtn.textContent = 'Ver por Mes'; // Cambia el texto para ofrecer la acción de volver
+        prevBtn.style.display = 'none'; // Ocultamos los botones de navegación
+        nextBtn.style.display = 'none';
+        semanasDelPeriodo = Object.keys(this.data).filter(k => this.data[k].completada);
+    } else {
+        // --- MODO MENSUAL ---
+        titulo.textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
+        toggleBtn.textContent = 'Ver Todo'; // El texto vuelve a su estado original
+        prevBtn.style.display = 'inline-block'; // Mostramos los botones de nuevo
+        nextBtn.style.display = 'inline-block';
+        semanasDelPeriodo = Object.keys(this.data).filter(k => 
+            this.data[k].completada && 
+            new Date(this.getWeekDates(k)).getMonth() === this.currentMonth && 
+            new Date(this.getWeekDates(k)).getFullYear() === this.currentYear
+        );
     }
+
+    // --- El resto de la lógica de cálculo y renderizado no cambia ---
+    let totalDiasCumplidos = 0, totalPositivos = 0, totalDiasMarcados = 0;
+    semanasDelPeriodo.forEach(key => {
+        const dias = Object.values(this.data[key].dias);
+        totalDiasCumplidos += dias.filter(d => d.cumplido === true).length;
+        totalPositivos += dias.filter(d => d.resultado === 'positivo').length;
+        totalDiasMarcados += dias.filter(d => d.cumplido !== null).length;
+    });
+
+    document.getElementById('semanasDelMes').textContent = semanasDelPeriodo.length;
+    document.getElementById('diasCumplidosMes').textContent = totalDiasCumplidos;
+    document.getElementById('positivosMes').textContent = totalPositivos;
+    document.getElementById('cumplimientoMes').textContent = `${totalDiasMarcados > 0 ? Math.round((totalDiasCumplidos / totalDiasMarcados) * 100) : 0}%`;
+    
+    this.renderMonthlyChart(semanasDelPeriodo);
+}
+
+
+ 
 
     renderMonthlyChart(semanasDelMes) {
         const canvas = document.getElementById('monthlyChart');
@@ -3288,6 +3328,7 @@ window.openTab = function(tabName) {
         window.app = new RetosSemanales();
     }
 }
+
 
     </script>
 </body>
