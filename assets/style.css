@@ -229,6 +229,10 @@ h3 {
 }
 
 @media (max-width: 768px) {
+    .container {
+        padding: 12px 8px;
+    }
+
     .header-container {
         gap: 8px;
         margin-bottom: 16px;
@@ -258,6 +262,7 @@ h3 {
     .account-controls-row,
     .account-controls-row-secondary {
         gap: 6px;
+        flex-wrap: wrap;
     }
 
     .account-controls button,
@@ -268,12 +273,78 @@ h3 {
 
     .account-controls-row select {
         min-width: 0;
+        flex: 1 1 100%;
         font-size: 13px;
         padding: 8px 10px;
+    }
+
+    .tabs {
+        gap: 4px;
+        padding-bottom: 8px;
+    }
+
+    .tab {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .dashboard-card {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .card-stats {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    .stat-box {
+        padding: 16px;
+    }
+
+    .stat-box h4 {
+        font-size: 11px;
+    }
+
+    .stat-box p {
+        font-size: 20px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th, td {
+        padding: 10px 6px;
+    }
+
+    .filter-controls {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .modal-content {
+        padding: 20px;
+        margin: 10px;
+        width: 95%;
+    }
+
+    .ninja-modal-content {
+        padding: 20px;
+        margin: 10px;
+        width: 95%;
     }
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 8px 6px;
+    }
+
     h1 {
         font-size: 18px;
         gap: 6px;
@@ -293,12 +364,95 @@ h3 {
 
     .account-controls button,
     .account-controls .button-small {
-        padding: 7px 8px;
+        padding: 6px 8px;
         font-size: 11px;
+        flex: 1 1 auto;
     }
 
     .account-controls-row {
         gap: 4px;
+    }
+
+    .account-controls-row select {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+
+    .tabs {
+        gap: 2px;
+    }
+
+    .tab {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .dashboard-card {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .card-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .stat-box {
+        padding: 12px;
+    }
+
+    .stat-box h4 {
+        font-size: 10px;
+    }
+
+    .stat-box p {
+        font-size: 18px;
+    }
+
+    h2 {
+        font-size: 15px;
+    }
+
+    h3 {
+        font-size: 14px;
+    }
+
+    table {
+        font-size: 11px;
+    }
+
+    th, td {
+        padding: 8px 4px;
+    }
+
+    .filter-controls {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    input, select, textarea {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .modal-content,
+    .ninja-modal-content {
+        padding: 16px;
+        margin: 5px;
+        width: 98%;
+    }
+
+    .chart-container {
+        height: 250px;
     }
 }
 
@@ -1684,14 +1838,110 @@ body.dark-mode .chart-container {
 
 @media (max-width: 500px) {
     .dia-linea {
-        grid-template-columns: 80px 35px 1fr;
-        gap: 0.8rem;
+        grid-template-columns: 70px 32px 32px 1fr;
+        gap: 0.5rem;
+        padding: 0.3rem;
+    }
+
+    .dia-nombre-lineal {
+        font-size: 0.8rem;
+    }
+
+    .btn-cumplido-check, .btn-no-cumplido-check {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    .resultado-selector-lineal select {
+        font-size: 0.75rem;
+        padding: 0.4rem;
+        max-width: 100%;
     }
 
     .btn-finalizar {
         padding: 0.6rem 1rem;
         font-size: clamp(0.75rem, 2.5vw, 0.9rem);
         min-width: 120px;
+    }
+
+    .week-nav {
+        flex-direction: column;
+        gap: 8px;
+        padding: 0 0.5rem;
+    }
+
+    .week-nav button {
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .current-week {
+        margin: 0;
+        order: -1;
+    }
+
+    .reto-section {
+        padding: 1rem;
+    }
+
+    .reto-input {
+        min-width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .estadisticas,
+    .monthly-stats,
+    .historial {
+        padding: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.3rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .month-selector {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .month-selector button {
+        width: 100%;
+    }
+
+    .historial-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .btn-ver-semana, .btn-eliminar-semana {
+        width: 100%;
+        margin: 0.1rem 0;
+    }
+
+    .dias-grid-header {
+        grid-template-columns: 70px 80px 1fr;
+        font-size: 0.7rem;
+        gap: 0.5rem;
+    }
+
+    .dias-grid-header span:nth-child(2) {
+        text-align: center;
+        grid-column: 2 / 4;
     }
 }
 
