@@ -1,9 +1,13 @@
 // ============================================================================
-// CONSTANTES Y CONFIGURACIÓN GLOBAL
+// CONSTANTES GLOBALES
 // ============================================================================
 
 const ACCOUNTS_KEY = 'tradingAccounts';
 const ACTIVE_ACCOUNT_KEY = 'tradingActiveAccount';
+
+// ============================================================================
+// FUNCIONES AUXILIARES DE CHECKLIST
+// ============================================================================
 
 function getChecklistItemsForAccount() {
     const key = `checklist_items_${currentAccountId}`;
@@ -2159,33 +2163,57 @@ class RetosSemanales {
 // INICIALIZACIÓN DE LA APLICACIÓN
 // ============================================================================
 
-let app; 
+// ============================================================================
+// INICIALIZACIÓN DE APLICACIÓN DE RETOS
+// ============================================================================
+
+let app;
 
 const originalOpenTab = window.openTab;
 window.openTab = function(tabName) {
-    originalOpenTab(tabName); 
+    originalOpenTab(tabName);
 
     if (tabName === 'Retos' && !window.app) {
         window.app = new RetosSemanales();
     }
 }
 
-// Inicialización al cargar la página
-loadAccounts();
-const storedActive = localStorage.getItem(ACTIVE_ACCOUNT_KEY);
-if (storedActive && accounts.find(a => a.id === storedActive)) {
-    setActiveAccount(storedActive);
-} else if (accounts.length === 0) {
-    openCreateAccountModal();
-} else {
-    setActiveAccount(accounts[0].id);
-}
-document.getElementById('date').value = new Date().toISOString().split('T')[0];
+// ============================================================================
+// INICIALIZACIÓN AL CARGAR LA PÁGINA
+// ============================================================================
 
-// Configurar listener para importación CSV
-document.getElementById('csv-file-input').addEventListener('change', iniciarImportacionCSV);
+window.addEventListener('DOMContentLoaded', function() {
+    // Cargar cuentas
+    loadAccounts();
+    
+    // Seleccionar cuenta activa
+    const storedActive = localStorage.getItem(ACTIVE_ACCOUNT_KEY);
+    if (storedActive && accounts.find(a => a.id === storedActive)) {
+        setActiveAccount(storedActive);
+    } else if (accounts.length === 0) {
+        openCreateAccountModal();
+    } else {
+        setActiveAccount(accounts[0].id);
+    }
+    
+    // Configurar fecha actual en formulario
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
 
-openTab('dashboard');
+    // Configurar listener para importación CSV
+    const csvInput = document.getElementById('csv-file-input');
+    if (csvInput) {
+        csvInput.addEventListener('change', iniciarImportacionCSV);
+    }
+
+    // Abrir pestaña inicial
+    openTab('dashboard');
+    
+    // Inicializar tema
+    initTheme();
+});
 
 // ============================================================================
 // GESTIÓN DE TEMA CLARO/OSCURO
@@ -2194,6 +2222,8 @@ openTab('dashboard');
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     const themeToggle = document.getElementById('theme-toggle');
+
+    if (!themeToggle) return;
 
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
@@ -2213,6 +2243,26 @@ function initTheme() {
 }
 
 // ============================================================================
+// FUNCIONES DE MODAL DE IMÁGENES
+// ============================================================================
+
+function openImageModal(src) {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    if (modal && modalImg) {
+        modal.style.display = 'block';
+        modalImg.src = src;
+    }
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// ============================================================================
 // REGISTRO DE SERVICE WORKER PARA PWA
 // ============================================================================
 
@@ -2228,17 +2278,9 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Funciones para modal de imágenes
-function openImageModal(src) {
-    const modal = document.getElementById('image-modal');
-    const modalImg = document.getElementById('modal-image');
-    modal.style.display = 'block';
-    modalImg.src = src;
-}
-
-function closeImageModal() {
-    document.getElementById('image-modal').style.display = 'none';
-}
+// ============================================================================
+// EVENT LISTENERS GLOBALES
+// ============================================================================
 
 // Cerrar modal con tecla Escape
 document.addEventListener('keydown', function(event) {
@@ -2246,6 +2288,3 @@ document.addEventListener('keydown', function(event) {
         closeImageModal();
     }
 });
-
-// Inicializar tema
-initTheme();
