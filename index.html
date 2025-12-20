@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Trading Control</title>
+    <!-- Color de la barra de estado en móviles -->
+    <meta name="theme-color" content="#1a1a1a">
+    <!-- Enlace al Manifiesto de Aplicación Web (incrustado y corregido) -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Icono para dispositivos Apple (muy importante para accesos directos) -->
+    <link rel="apple-touch-icon" href="logo.jpg">
+    <!-- Icono básico para pestañas de navegador (Favicon) -->
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
+    <meta name="theme-color" content="#1a1a1a">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header con título y tema -->
+        <div class="header-container">
+            <h1><img src="icon.png" alt="Trading Control Icon">Trading Control</h1>
+            <button id="theme-toggle" aria-label="Cambiar tema">☀️</button>
+        </div>
+
+        <!-- Controles de cuenta optimizados -->
+        <div class="account-controls">
+            <!-- Fila 1: Selector y acciones principales -->
+            <div class="account-controls-row">
+                <select id="account-selector" onchange="setActiveAccount(this.value)" aria-label="Seleccionar cuenta"></select>
+                <button onclick="openSettingsModal()" class="button-secondary button-small" title="Ajustes">⚙️</button>
+                <button onclick="openCreateAccountModal()" class="button-small button-secondary">+ Crear</button>
+                <button onclick="confirmDeleteAccount()" class="button-small button-danger">🗑️</button>
+            </div>
+            
+            <!-- Fila 2: Importación y ayuda -->
+            <div class="account-controls-row-secondary">
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                <button onclick="document.getElementById('csv-file-input').click()" class="button-small button-secondary">📊 Importar CSV</button>
+                <button onclick="openNinjaHelpModal()" class="button-small button-secondary">❓ Ayuda NinjaTrader</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="openTab('checklist')">Checklist</button>
+            <button class="tab" onclick="openTab('registro')">Registro</button>
+            <button class="tab" onclick="openTab('historial')">Historial</button>
+            <button class="tab" onclick="openTab('objetivos')">Objetivos</button>
+            <button class="tab" onclick="openTab('Retos')">Retos Semanales</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-card">
+                <h3>💰 Resumen de Cuenta</h3>
+                <div class="card-stats">
+                    <div class="stat-box"><h4>Saldo Inicial</h4><p id="initial-balance-display">0.00 €</p></div>
+                    <div class="stat-box"><h4>Saldo Actual</h4><p id="current-balance">0.00 €</p></div>
+                    <div class="stat-box"><h4>Ganancia/Pérdida</h4><p id="profit-loss">0.00 €</p></div>
+                    <div class="stat-box"><h4>Rentabilidad</h4><p id="roi">0.00%</p></div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🎯 Seguimiento de Drawdown</h3>
+                <div class="card-stats">
+                    <div class="stat-box"><h4>Pico de Saldo (HWM)</h4><p id="high-water-mark">0.00 €</p></div>
+                    <div class="stat-box"><h4>Suelo Drawdown</h4><p id="drawdown-floor">0.00 €</p></div>
+                    <div class="stat-box"><h4>Margen hasta Suelo</h4><p id="margin-to-floor">0.00 €</p></div>
+                </div>
+                <p class="drawdown-info" id="drawdown-explanation">El suelo de drawdown es el saldo mínimo permitido.</p>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>📈 Regla de Consistencia</h3>
+                <p>El día más rentable no debe superar el <span id="consistency-limit-display">40</span>% de las ganancias totales.</p>
+                <div id="consistency-rule-container">
+                    <div class="progress-container">
+                        <div id="consistency-progress" class="progress-bar" style="width: 0%"></div>
+                        <div class="progress-label">0%</div>
+                    </div>
+                    <p id="consistency-details" style="margin-top: 10px; font-size: 0.9em;">No hay suficientes datos para calcular la consistencia.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🎯 Objetivos y Metas</h3>
+                <div class="card-stats">
+                    <div class="stat-box">
+                        <h4>Objetivo Semanal</h4>
+                        <p id="weekly-goal-display">0.00 €</p>
+                        <p id="weekly-progress-percentage">0%</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Objetivo Mensual</h4>
+                        <p id="monthly-goal-display">0.00 €</p>
+                        <p id="monthly-progress-percentage">0%</p>
+                    </div>
+                </div>
+                <h3 style="margin-top: 20px;">📝 Metas Activas</h3>
+                <div id="journal-entries"></div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>📊 Crecimiento de Capital</h3>
+                <div class="chart-container">  
+                    <canvas id="capitalGrowthChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🕒 Operaciones Recientes</h3>
+                <div id="recent-operations"><p>No hay operaciones recientes para mostrar.</p></div>
+            </div>
+        </div>
+        <!-- Checklist -->
+     <!-- Checklist -->
+<div id="checklist" class="tab-content">
+    <div class="checklist-header">
+        <h2>Checklist Personal - Classroom</h2>
+        <div>
+            <!-- Nuevos botones para editar y añadir tareas -->
+            <button id="edit-checklist-btn" onclick="toggleChecklistEditMode()" class="button-secondary button-small">Editar Lista</button>
+            <button id="save-checklist-btn" onclick="saveChecklistChanges()" class="button-secondary button-small" style="display:none;">Guardar Cambios</button>
+            <button onclick="resetChecklist()" class="button-danger button-small">Resetear Checklist</button>
+        </div>
+    </div>
+    <ul id="listaTareas">
+        <!-- Las tareas se cargarán aquí -->
+    </ul>
+    <!-- Formulario para añadir nueva tarea (oculto por defecto) -->
+    <div id="add-task-container" class="form-group" style="display:none; margin-top: 20px;">
+        <input type="text" id="new-task-input" placeholder="Escribe el texto de la nueva tarea">
+        <button onclick="addNewChecklistItem()" style="margin-top: 10px;">Añadir Tarea</button>
+    </div>
+</div>
+       <!-- Registro  -->
+<div id="registro" class="tab-content">
+    <form id="trading-form">
+        <div class="form-group"><label for="date">Fecha:</label><input type="date" id="date"></div>
+        <div class="form-group">
+            <label for="type">Tipo de operación (Opcional):</label>
+            <select id="type">
+                <option value="">Seleccionar...</option>
+                <option value="bullish">Alcista (Compra)</option>
+                <option value="bearish">Bajista (Venta)</option>
+            </select>
+        </div>
+         <div class="form-group">
+            <label for="activo">Activo:</label>
+            <select id="activo" name="activo" onchange="handleAssetSelection(this)"> >
+                <option value="">Seleccionar...</option>
+                <option value="Nasdaq">Nasdaq</option>
+                <option value="Oro">Oro</option>
+                <option value="Dax">Dax</option>
+                <option value="custom">Otro (especificar)</option>
+            </select>
+            <input type="text" id="custom-activo-input" style="display: none; margin-top: 10px;" 
+            placeholder="Escribe el nombre del activo">
+        </div>
+        <div class="form-group">
+            <label for="estrategia">Estrategia:</label>
+            <select id="estrategia" name="estrategia" onchange="handleAssetSelection(this)">
+                <option value="">Seleccionar...</option>
+                <option value="Flash">Flash</option>
+                <option value="Monarca">Monarca</option>
+                <option value="Monarca Plus">Monarca Plus</option>
+                <option value="Imperial">Imperial</option>
+                <option value="Golden">Golden</option>
+                <option value="Golden Band">Golden Band</option>
+                <option value="custom">Otro (especificar)</option>
+            </select>
+            <input type="text" id="custom-estrategia-input" style="display: none; margin-top: 10px;" 
+            placeholder="Escribe el nombre de la estrategia">
+        </div>
+        <div class="form-group">
+            <label for="contracts">Número de contratos:</label>
+            <input type="number" id="contracts" step="1" min="0" placeholder="Ej: 1, 2, 5">
+        </div>
+        <div class="form-group">
+            <label for="entry-time">Hora de entrada (Opcional):</label>
+            <input type="time" id="entry-time" step="1"><small>Incluye segundos (hh:mm:ss)</small>
+        </div>
+        <div class="form-group">
+            <label for="exit-time">Hora de salida (Opcional):</label>
+            <input type="time" id="exit-time" step="1"><small>Incluye segundos (hh:mm:ss)</small>
+        </div>
+        <div class="form-group">
+            <label for="amount">Importe (positivo si ganancia, negativo si pérdida):</label>
+            <input type="text" inputmode="text" pattern="-?[0-9]*\.?[0-9]+" id="amount" step="any"
+             required placeholder="Ej: 150.50 o -75.20">
+        </div>
+        <div class="form-group">
+            <label for="entry-type">Tipo de entrada:</label>
+            <select id="entry-type" name="entry-type" onchange="handleAssetSelection(this)">
+                <option value="">Seleccionar...</option>
+                <option value="En la zona">En la zona</option>
+                <option value="Precipitada">Precipitada</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Por rebote">Por rebote</option>
+                <option value="En ruptura (breakout)">En ruptura (breakout)</option>
+                <option value="En pullback">En pullback</option>
+                <option value="En continuación">En continuación</option>
+                <option value="En reversión">En reversión</option>
+                <option value="Planificada">Planificada</option>
+                <option value="Impulsiva">Impulsiva</option>
+                <option value="Forzada">Forzada</option>
+                <option value="Por confirmación">Por confirmación</option>
+                <option value="custom">Otro (especificar)</option>
+            </select>
+            <input type="text" id="custom-entry-type-input" style="display: none; margin-top: 10px;" 
+            placeholder="Escribe el tipo de entrada">
+        </div>
+        <div class="form-group">
+            <label for="exit-type">Tipo de salida:</label>
+            <select id="exit-type" name="exit-type" onchange="handleAssetSelection(this)">
+                <option value="">Seleccionar...</option>
+                <option value="Por objetivo (take profit)">Por objetivo (take profit)</option>
+                <option value="Por stop loss">Por stop loss</option>
+                <option value="Por trailing stop">Por trailing stop</option>
+                <option value="Por tiempo">Por tiempo</option>
+                <option value="Por reversión">Por reversión</option>
+                <option value="Por señal técnica">Por señal técnica</option>
+                <option value="Por cierre de mercado">Por cierre de mercado</option>
+                <option value="Prematura">Prematura</option>
+                <option value="Tardía">Tardía</option>
+                <option value="Por pánico">Por pánico</option>
+                <option value="custom">Otro (especificar)</option>
+            </select>
+            <input type="text" id="custom-exit-type-input" style="display: none; margin-top: 10px;" 
+            placeholder="Escribe el tipo de salida">
+        </div>
+         <div class="form-group">
+            <label for="journal-news">Valoración de Noticias:</label>
+            <div class="stars">
+                <span class="star" data-value="0" onclick="setNewsRating(0)">☆</span>
+                <span class="star" data-value="1" onclick="setNewsRating(1)">☆</span>
+                <span class="star" data-value="2" onclick="setNewsRating(2)">☆</span>
+                <span class="star" data-value="3" onclick="setNewsRating(3)">☆</span>
+                <span class="star" data-value="4" onclick="setNewsRating(4)">☆</span>
+            </div>
+            <input type="hidden" id="journal-news" value="0">
+        </div>
+        <div class="form-group">
+            <label for="journal-mood">Estado de Ánimo:</label>
+            <div class="mood-input-container">
+                <input type="text" id="journal-mood" placeholder="Escribe tu estado de ánimo o usa los iconos">
+                <div class="mood-icons">
+                    <span class="mood-icon" onclick="setMood('😊 Feliz')" title="Feliz">😊</span>
+                    <span class="mood-icon" onclick="setMood('😐 Neutral')" title="Neutral">😐</span>
+                    <span class="mood-icon" onclick="setMood('😟 Triste')" title="Triste">😟</span>
+                    <span class="mood-icon" onclick="setMood('😠 Enfadado')" title="Enfadado">😠</span>
+             </div>
+   </div>
+</div>
+<div class="form-group">
+            <label for="trade-media">Foto/Video de la Operación (Opcional):</label>
+            <input type="file" id="trade-media" accept="image/*,video/*">
+            <small>Solo se aceptan imágenes (jpg, png) </small>
+</div>
+
+ <div class="form-group"><label for="notes">Notas (Opcional):</label>
+                <textarea id="notes" rows="3"></textarea></div>
+            <button type="submit">Guardar Operación</button>
+        </form>
+ </div>
+
+<!-- Historial  -->
+ <div id="historial" class="tab-content">
+        <div class="filter-controls">
+            <div class="form-group"><label for="filter-year">Filtrar por año:</label><select id="filter-year" onchange="filterOperations()"></select></div>
+            <div class="form-group">
+                <label for="filter-month">Filtrar por mes:</label>
+                <select id="filter-month" onchange="filterOperations()">
+                    <option value="">Todos</option>
+                    <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+                    <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+                    <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+                    <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filter-type">Filtrar por tipo:</label>
+                <select id="filter-type" onchange="filterOperations()">
+                    <option value="">Todos</option><option value="bullish">Alcista</option><option value="bearish">Bajista</option>
+                    <option value="other">Otro</option><option value="none">Sin tipo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filter-result">Filtrar por resultado:</label>
+                <select id="filter-result" onchange="filterOperations()">
+                    <option value="">Todos</option><option value="win">Ganancia</option><option value="loss">Pérdida</option><option value="neutral">Neutral</option>
+                </select>
+            </div>
+        </div>
+        <div class="show-all-selector">
+    <label for="operations-display">Mostrar:</label>
+    <select id="operations-display" onchange="changeOperationsDisplay()">
+        <option value="4" selected>Últimas 4 operaciones</option>
+        <option value="-1">Todas las operaciones</option>
+    </select>
+</div>
+        <div style="overflow-x: auto;">
+            <table id="operations-table">
+                <thead>
+          <th>Fecha</th><th>Tipo</th><th>Activo</th><th>Estrategia</th><th>Contratos</th><th>Tipo Entrada</th><th>Tipo Salida</th><th>Duración</th><th>Ánimo</th>
+          <th>Importe</th><th>Media</th><th>Acciones</th>
+                </thead>
+                <tbody id="operations-list"></tbody>
+            </table>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Operaciones por Día de la Semana</h3>
+            <div class="card-stats" id="weekly-performance"></div>
+            <div class="dashboard-card">
+            <h3>Porcentaje de Aciertos por Día de la Semana</h3>
+          <div class="card-stats" id="weekly-success-rate"></div>
+       </div>
+        </div>
+
+        <div class="dashboard-card" style="margin-top: 30px;">
+            <h3>Historial de Metas Conseguidas</h3>
+            <p>Aquí se muestran las metas que has completado. ¡Sigue así!</p>
+            <div id="historial-metas-conseguidas">
+                <!-- Las metas completadas se cargarán aquí -->
+            </div>
+        </div>
+
+
+ </div>
+
+<!-- Objetivos -->
+<div id="objetivos" class="tab-content">
+    <div class="dashboard-card">
+        <h3>Metas</h3>
+        <div class="form-group">
+            <label for="journal-date">Fecha:</label>
+            <input type="date" id="journal-date" required min="2020-01-01">
+        </div>
+        <div class="form-group">
+            <label for="journal-title">Metas:</label>
+            <input type="text" id="journal-title" placeholder="Escribe tu meta">
+        </div>
+        <button onclick="saveJournalEntry()">Guardar Meta</button>
+
+        <div id="journal-entries" style="margin-top: 20px;"></div>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>🎯 Configurar Objetivos</h3>
+        <div class="form-group">
+            <label for="weekly-goal">Objetivo Semanal (€):</label>
+            <input type="number" id="weekly-goal" step="0.01" placeholder="Ej: 1000">
+            <p id="weekly-progress-detailed">Progreso: 0.00 € / 0.00 € (0%)</p>
+        </div>
+        <div class="form-group">
+            <label for="monthly-goal">Objetivo Mensual (€):</label>
+            <input type="number" id="monthly-goal" step="0.01" placeholder="Ej: 4000">
+            <p id="monthly-progress-detailed">Progreso: 0.00 € / 0.00 € (0%)</p>
+        </div>
+        <button onclick="saveGoals()">Guardar Objetivos</button>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>📊 Estadísticas Generales</h3>
+        <div class="card-stats" id="journal-stats-container"></div>
+    </div>
+</div>
+
+<!-- Retos Semanales -->
+<div id="Retos" class="tab-content">
+
+    <div class="content">
+
+        <!-- SECCIÓN SEMANAL -->
+        <div class="retos-seccion-bloque">
+            <div class="header">
+                <div class="week-nav" id="weekNav">
+                    <button id="prevWeek">← Anterior</button>
+                    <div class="current-week" id="currentWeekDisplay"></div>
+                    <button id="nextWeek">Siguiente →</button>
+                </div>
+            </div>
+
+            <!-- 1. Sección del Reto (con el div correctamente cerrado) -->
+            <div class="reto-section">
+                <h2>🎯 Reto de la Semana</h2>
+                <div style="display: flex; gap: 10px; align-items: center; width: 100%;">
+                    <input type="text" id="retoInput" class="reto-input" placeholder="Define tu reto para esta semana..." disabled>
+                    <button id="btnEditarReto" class="btn-editar-reto" style="display: none;">✏️</button>
+                    <button id="btnGuardarReto" class="btn-guardar-reto" style="display: none;">💾</button>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #6c757d; width: 100%;">
+                    <em>El reto se guarda automáticamente y se puede editar.</em>
+                </div>
+            </div> <!-- CIERRE DEL DIV .reto-section -->
+
+            <!-- 2. Grid de Días -->
+            <div class="dias-grid" id="diasGrid">
+                <div class="dias-grid-header">
+                    <span>Día</span>
+                    <span>Reto</span>
+                    <span>Operativa</span>
+                </div>
+                <!-- Los días se generarán dinámicamente aquí -->
+            </div>
+
+            <!-- 3. Botón Finalizar Semana -->
+            <div class="guardar-section">
+                <button id="btnGuardarHistorial" class="btn-finalizar" style="display: none;">Finalizar Semana</button>
+            </div>
+
+            <!-- 4. Estadísticas Semanales -->
+            <div class="estadisticas">
+                <h2>📊 Estadísticas de la Semana</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="diasCumplidos">0</div><div class="stat-label">Días Cumplidos</div></div>
+                    <div class="stat-card"><div class="stat-number" id="resultadosPositivos">0</div><div class="stat-label">Resultados +</div></div>
+                    <div class="stat-card"><div class="stat-number" id="resultadosNegativos">0</div><div class="stat-label">Resultados -</div></div>
+                    <div class="stat-card"><div class="stat-number" id="porcentajeCumplimiento">0%</div><div class="stat-label">% Cumplimiento</div></div>
+                    <div class="stat-card"><div class="stat-number" id="efectividad">0%</div><div class="stat-label">% Efectividad</div></div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN MENSUAL -->
+        <div class="retos-seccion-bloque">
+            <div class="monthly-stats">
+                <h2>📈 Estadísticas Mensuales</h2>
+                <div class="month-selector">
+                    <button id="prevMonthBtn">← Mes Anterior</button>
+                    <h3 id="currentMonth"></h3>
+                    <button id="nextMonthBtn">Mes Siguiente →</button>
+                   <button id="toggleTotalViewBtn" style="background-color: var(--accent-secondary);">Ver Todo</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="semanasDelMes">0</div><div class="stat-label">Semanas Registradas</div></div>
+                    <div class="stat-card"><div class="stat-number" id="diasCumplidosMes">0</div><div class="stat-label">Total Días Cumplidos</div></div>
+                    <div class="stat-card"><div class="stat-number" id="positivosMes">0</div><div class="stat-label">Resultados Positivos</div></div>
+                    <div class="stat-card"><div class="stat-number" id="cumplimientoMes">0%</div><div class="stat-label">% Cumplimiento Mes</div></div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN HISTORIAL -->
+        <div class="retos-seccion-bloque">
+            <div class="historial">
+                <h2>📅 Historial Completo</h2>
+                <div style="text-align: center; margin: 20px 0;">
+                  <button id="btnBorrarHistorial" class="button-danger">Borrar Historial</button>
+                </div>
+                <div id="historialContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Modals -->
+        <div id="settings-modal" class="settings-modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeSettingsModal()">&times;</span>
+                <h2>Configuración de Cuenta</h2>
+                <p id="settings-account-name" style="color: #00f2ea; font-weight: bold; margin-bottom: 15px;"></p>
+                <div class="form-group">
+                    <label for="initial-balance">Saldo Inicial (€):</label>
+                    <input type="number" id="initial-balance" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="trailing-drawdown-amount">Importe Drawdown Trailing/EOD (€):</label>
+                    <input type="number" id="trailing-drawdown-amount" step="0.01" min="0">
+                    <small>Importe fijo de drawdown permitido (Ej: 2500 para cuenta de 50k).</small>
+                </div>
+                <div class="form-group">
+                    <label for="consistency-percentage">Porcentaje de Consistencia (%):</label>
+                    <input type="number" id="consistency-percentage" step="1" min="1" max="100">
+                    <small>Porcentaje máximo del día más rentable sobre ganancias totales.</small>
+                </div>
+                <div class="modal-buttons">
+                    <button class="button-danger" onclick="resetAllData()">Reiniciar Datos</button>
+                    <button class="button-secondary" onclick="saveSettings()">Guardar</button>
+                </div>
+            </div>
+        </div>
+        <div id="details-modal" class="details-modal">
+         <div class="modal-content">
+            <span class="close-modal" onclick="closeDetailsModal()">&times;</span>
+            <h2>Detalles de la Operación</h2>
+             <div id="operation-details-content"></div>
+           <div class="modal-buttons">
+            <button onclick="closeDetailsModal()">Cerrar</button>
+          </div>
+         </div>
+        </div>
+
+        <!-- Modal de Ayuda NinjaTrader -->
+        <div id="modal-ayuda-ninja" class="ninja-help-modal">
+            <div class="ninja-modal-content">
+                <span class="close-modal" onclick="closeNinjaHelpModal()">&times;</span>
+                <h2>📊 Guía de Exportación desde NinjaTrader</h2>
+                <p style="color: var(--text-muted); margin-bottom: 24px;">
+                    Para importar tus operaciones a Trading Control, sigue estos pasos para exportar el archivo CSV de "Account Performance" desde NinjaTrader:
+                </p>
+
+                <div class="ninja-steps">
+                    <div class="ninja-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Abrir y Conectar</h3>
+                            <p>Abre NinjaTrader y <strong>conéctate a un servidor</strong> (aunque sea de simulación).</p>
+                        </div>
+                    </div>
+
+                    <div class="ninja-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Abrir Resultado de Operaciones</h3>
+                            <p>Ve a <code>Nuevo</code> → <code>Resultado de Operaciones</code>.</p>
+                            <img src="Fotos/info1.png" alt="Resultado de Operaciones" class="step-image" onclick="openImageModal(this.src)">
+                        </div>
+                    </div>
+
+                    <div class="ninja-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Seleccionar Trades</h3>
+                            <p>Se abrirá la ventana <code>Resultado de Operaciones</code>. Elige la opción <code>Trades</code>.</p>
+                            <img src="Fotos/info2.png" alt="Seleccionar Trades" class="step-image" onclick="openImageModal(this.src)">
+                        </div>
+                    </div>
+
+                    <div class="ninja-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Filtrar y Generar</h3>
+                            <p>Haz la ventana grande para ver la sección de filtros. Elige las cuentas y el rango de fechas. Haz clic en <code>Generar</code>.</p>
+                            <img src="Fotos/info3.png" alt="Filtros y Generar" class="step-image" onclick="openImageModal(this.src)">
+                        </div>
+                    </div>
+
+                    <div class="ninja-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h3>Exportar</h3>
+                            <p>Haz clic derecho sobre los datos generados y selecciona <code>Exportar</code>.</p>
+                            <img src="Fotos/info4.png" alt="Clic Derecho Exportar" class="step-image" onclick="openImageModal(this.src)">
+                        </div>
+                    </div>
+
+                    <div class="ninja-step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h3>Guardar CSV</h3>
+                            <p>Guarda el archivo con un nombre descriptivo (ej: <code>cuenta-enero-2025.csv</code>).</p>
+                            <img src="Fotos/info5.png" alt="Guardar Archivo" class="step-image" onclick="openImageModal(this.src)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ninja-video-section">
+                    <h3>🎥 Vídeo Explicativo</h3>
+                    <p>Si prefieres una guía visual paso a paso:</p>
+                    <video controls class="ninja-video">
+                        <source src="Fotos/info.mp4" type="video/mp4">
+                        Tu navegador no soporta la reproducción de vídeo.
+                    </video>
+                </div>
+
+                <div class="modal-buttons">
+                    <button onclick="closeNinjaHelpModal()">Entendido</button>
+                </div>
+            </div>
+        </div>
+
+    <!-- Modal para ampliar imágenes -->
+    <div id="image-modal" class="image-modal" onclick="closeImageModal()">
+        <span class="close-modal" onclick="closeImageModal()">&times;</span>
+        <img id="modal-image" class="modal-image-content">
+    </div>
+
+    <script src="assets/app.js"></script>
+</body>
+</html>
