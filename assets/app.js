@@ -1,5 +1,5 @@
 // ============================================================================
-// CONSTANTES GLOBALES
+// CONSTANTES Y CONFIGURACIÓN GLOBAL
 // ============================================================================
 
 const ACCOUNTS_KEY = 'tradingAccounts';
