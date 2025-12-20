@@ -2,6 +2,9 @@
 // CONSTANTES Y CONFIGURACIÓN GLOBAL
 // ============================================================================
 
+const ACCOUNTS_KEY = 'tradingAccounts';
+const ACTIVE_ACCOUNT_KEY = 'tradingActiveAccount';
+
 function getChecklistItemsForAccount() {
     const key = `checklist_items_${currentAccountId}`;
     const storedItems = localStorage.getItem(key);
@@ -23,13 +26,6 @@ function getChecklistItemsForAccount() {
         ];
     }
 }
-
-// ============================================================================
-// CONSTANTES GLOBALES
-// ============================================================================
-
-const ACCOUNTS_KEY = 'tradingAccounts';
-const ACTIVE_ACCOUNT_KEY = 'tradingActiveAccount';
 
 // ============================================================================
 // ESTADO DE LA APLICACIÓN
