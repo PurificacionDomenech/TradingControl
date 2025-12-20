@@ -103,6 +103,22 @@ body.dark-mode #theme-toggle {
     gap: 12px;
     width: 100%;
     max-width: 100%;
+    flex-wrap: wrap;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 h1 {
@@ -115,7 +131,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1;
+    flex-shrink: 1;
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
